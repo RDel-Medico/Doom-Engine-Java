@@ -19,10 +19,10 @@ public class main {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		Point a = new Point(0, 0);
-		Point b = new Point(50, 50);
+		Point b = new Point(0, 50);
 		
-		Point c = new Point(50, 0);
-		Point d = new Point(0, 50);
+		Point c = new Point(50, 25);
+		Point d = new Point(25, 25);
 		
 		Segment[] seg = new Segment[] {new Segment(a, b), new Segment(c, d)};
 		
