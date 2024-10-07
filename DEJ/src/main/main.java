@@ -6,6 +6,7 @@ import map.MapRenderer2D;
 import map.Point;
 import map.Sector;
 import map.Segment;
+import utility.Utility;
 
 public class main {
 	final static int SCREEN_WIDTH = 1500;
@@ -18,32 +19,14 @@ public class main {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		Point a = new Point(0, 0);
-		Point b = new Point(100, 0);
-		Point c = new Point(100, 100);
-		Point d = new Point(0, 100);
+		Point b = new Point(50, 50);
 		
-		Segment[] seg = new Segment[] {new Segment(a, b),
-		new Segment(b, c),
-		new Segment(c, d),
-		new Segment(d, a)};
+		Point c = new Point(50, 0);
+		Point d = new Point(0, 50);
 		
-		Sector level = new Sector(seg);
+		Segment[] seg = new Segment[] {new Segment(a, b), new Segment(c, d)};
 		
-		Point a2 = new Point(10, 50);
-		Point b2 = new Point(80, 30);
-		Point c2 = new Point(40, 70);
-		Point d2 = new Point(30, 50);
-		
-		Segment[] seg2 = new Segment[] {new Segment(a2, b2),
-		new Segment(b2, c2),
-		new Segment(c2, d2),
-		new Segment(d2, a2)};
-		
-		Sector level2 = new Sector(seg2);
-		
-		MapRenderer2D map = new MapRenderer2D(new Sector[] {level, level2}, SCREEN_WIDTH, SCREEN_HEIGHT);
-		
-		frame.add(map);
+		System.out.println(Utility.intersectionPoint(seg[0], seg[1]).getX() + ", " + Utility.intersectionPoint(seg[0], seg[1]).getY());
 		
 		frame.setVisible(true);
 	}

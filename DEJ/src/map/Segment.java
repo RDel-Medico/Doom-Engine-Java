@@ -24,4 +24,12 @@ public class Segment {
 	public void setB(Point b) {
 		this.b = b;
 	}
+	
+	public int getXMouvement() {
+		return this.b.getX() - this.a.getX();
+	}
+	
+	public int getYMouvement() {
+		return this.b.getY() - this.a.getY();
+	}
 }
