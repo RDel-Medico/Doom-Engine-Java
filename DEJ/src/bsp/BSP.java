@@ -30,7 +30,16 @@ public class BSP {
 		}
 		
 		this.root = new BSPNode();
-		this.buildBSP(this.root, this.bspMap);
+		this.bspMap = new Segment[0];
+		this.buildBSP(this.root, this.map);
+	}
+	
+	public BSPNode getRoot() {
+		return this.root;
+	}
+	
+	public Segment[] getSegments() {
+		return this.bspMap;
 	}
 	
 	public void addSegment(Segment splitter, BSPNode b) {
@@ -51,27 +60,32 @@ public class BSP {
 	}
 
 	public void buildBSP(BSPNode b, Segment[] s) {
-		if (s.length == 0) return;
+		if (s == null || s.length == 0) System.out.println("BAD");
 		
 		Segment[] front = splitFrontSegments(s);
 		Segment[] back = splitBackSegments(s);
 		
 		this.addSegment(s[0], b);
+		b.split = s[0];
 		
 		if (front.length > 0) {
 			b.front = new BSPNode();
 			buildBSP(b.front, front);
+		} else {
+			b.front = null;
 		}
 		
 		if (back.length > 0) {
 			b.back = new BSPNode();
 			buildBSP(b.back, back);
+		} else {
+			b.back = null;
 		}
 	}
 	
 	public Segment[] splitFrontSegments(Segment[] s) {
 		Segment splitter = s[0];
-		ArrayList<Segment> res = new ArrayList<>();
+		ArrayList<Segment> res = new ArrayList<Segment>();
 		
 		for (int i = 1; i < s.length; i++) {
 			if (Utility.isCollinear(splitter, s[i])) {
@@ -99,12 +113,14 @@ public class BSP {
 				res.add(s[i]);
 			}
 		}
-		return (Segment[])res.toArray();
+		Segment[] test = new Segment[res.size()];
+		test = res.toArray(test);
+		return test;
 	}
 	
 	public Segment[] splitBackSegments(Segment[] s) {
 		Segment splitter = s[0];
-		ArrayList<Segment> res = new ArrayList<>();
+		ArrayList<Segment> res = new ArrayList<Segment>();
 		
 		for (int i = 1; i < s.length; i++) {
 			
@@ -128,6 +144,8 @@ public class BSP {
 				res.add(s[i]);
 			}
 		}
-		return (Segment[])res.toArray();
+		Segment[] test = new Segment[res.size()];
+		test = res.toArray(test);
+		return test;
 	}
 }

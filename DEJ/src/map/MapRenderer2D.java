@@ -14,16 +14,30 @@ public class MapRenderer2D extends JPanel {
 	private final static int MAP_MAX_X = 1400;
 	private final static int MAP_MAX_Y = 800;
 	
+	Segment[] bspMap;
+	int[] segId;
+	
 	public MapRenderer2D (int width, int height) {
 		this.map = new Sector[0];
 		this.topLeft = new Point (100, 100);
 		this.topLeft = new Point (width - 100, height - 100);
 	}
 	
-	public MapRenderer2D (Sector[] map, int width, int height) {
+	public MapRenderer2D (Sector[] map) {
 		this.topLeft = new Point(this.getMinX(map), this.getMinY(map));
 		this.bottomRight = new Point(this.getMaxX(map), this.getMaxY(map));
 		this.map = this.convertSectors(map);
+	}
+	
+	public void setSegment(Segment[] s, int[] id) {
+		Segment[] mapped = new Segment[s.length];
+		
+		for (int i = 0; i < s.length; i++) {
+			mapped[i] = this.convertSeg(s[i]);
+		}
+		
+		this.segId = id;
+		this.bspMap = mapped;
 	}
 	
 	private int getMinX(Sector[] map) {
@@ -81,9 +95,25 @@ public class MapRenderer2D extends JPanel {
 		super.paintComponent(g);
         this.setBackground(Color.BLACK);
         
-        g.setColor(Color.WHITE);
+        g.setColor(Color.DARK_GRAY);
+        drawOriginalSegment(g);
         
-        for (Sector s : map) {
+        drawBspSegment(g);
+        
+	}
+	
+	public void drawBspSegment(Graphics g) {
+		for (int i : this.segId) {
+			g.setColor(Color.WHITE);
+			this.drawWall(g, this.bspMap[i]);
+			g.setColor(Color.ORANGE);
+			g.fillOval(this.bspMap[i].getA().getX()-3, this.bspMap[i].getA().getY()-3, 6, 6);
+			g.fillOval(this.bspMap[i].getB().getX()-3, this.bspMap[i].getB().getY()-3, 6, 6);
+		}
+	}
+	
+	public void drawOriginalSegment(Graphics g) {
+		for (Sector s : map) {
         	this.drawSector(g, s);
         }
 	}

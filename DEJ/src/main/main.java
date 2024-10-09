@@ -1,7 +1,11 @@
 package main;
 
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
+import bsp.BSP;
+import bsp.BSPTraversal;
 import map.MapRenderer2D;
 import map.Point;
 import map.Sector;
@@ -20,13 +24,28 @@ public class main {
 		
 		Point a = new Point(0, 0);
 		Point b = new Point(0, 50);
+		Point c = new Point(50, 50);
+		Point d = new Point(50, 0);
 		
-		Point c = new Point(50, 25);
-		Point d = new Point(25, 25);
+		Segment[] seg = new Segment[] {new Segment(a, b), new Segment(b, c), new Segment(c, d), new Segment(d, a)};
 		
-		Segment[] seg = new Segment[] {new Segment(a, b), new Segment(c, d)};
+		Point e = new Point(20, 20);
+		Point f = new Point(30, 30);
+		Point g = new Point(20, 40);
+		Point h = new Point(10, 30);
 		
-		System.out.println(Utility.intersectionPoint(seg[0], seg[1]).getX() + ", " + Utility.intersectionPoint(seg[0], seg[1]).getY());
+		Segment[] obstacle = new Segment[] {new Segment(e, f), new Segment(f, g), new Segment(g, h), new Segment(h, e)};
+		
+		Sector[] level = new Sector[] {new Sector(obstacle), new Sector(seg)};
+		
+		BSP bsp = new BSP(level);
+		BSPTraversal bspT = new BSPTraversal(bsp.getRoot(), bsp.getSegments());
+		
+		MapRenderer2D map = new MapRenderer2D(level);
+		bspT.update();
+		map.setSegment(bsp.getSegments(), bspT.getId());
+		
+		frame.add(map);
 		
 		frame.setVisible(true);
 	}
