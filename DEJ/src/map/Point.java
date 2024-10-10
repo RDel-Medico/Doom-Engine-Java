@@ -20,8 +20,28 @@ public class Point {
 	public void setY(int y) {
 		this.y = y;
 	}
+	
+	public Point minus(Point p) {
+		return new Point(x - p.getX(), y - p.getY());
+	}
 
 	public void setX(int x) {
 		this.x = x;
+	}
+
+	public void up() {
+		this.y--;
+	}
+
+	public void down() {
+		this.y++;
+	}
+
+	public void left() {
+		this.x--;
+	}
+
+	public void right() {
+		this.x++;
 	}
 }

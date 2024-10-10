@@ -3,20 +3,19 @@ package bsp;
 import map.Point;
 import map.Segment;
 import utility.Utility;
+import main.main;
 
 public class BSPTraversal {
 	
 	BSPNode root;
 	Segment[] map;
 	
-	Segment cam;
 	int[] idToDraw;
 	
 	public BSPTraversal(BSPNode root, Segment[] map) {
 		this.root = root;
 		this.map = map;
-		
-		this.cam = new Segment(new Point(0,0), new Point(1, 1));
+
 		this.idToDraw = new int[0];
 	}
 	
@@ -44,13 +43,14 @@ public class BSPTraversal {
 	public void traverse(BSPNode curr) {
 		if (curr == null) return;
 		
-		if (Utility.isInFront(cam, curr.split)) {
+		//if (!Utility.isInFront(main.player.vision, curr.split)) {
+		if (!Utility.isInFront(curr.split, main.player.pos)) {
 			this.traverse(curr.front);
 			this.addId(curr.id);
 			this.traverse(curr.back);
 		} else {
 			this.traverse(curr.back);
-			this.addId(curr.id);
+			//this.addId(curr.id);
 			this.traverse(curr.front);
 		}
 	}

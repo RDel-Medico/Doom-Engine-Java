@@ -6,6 +6,7 @@ import map.Point;
 import map.Sector;
 import map.Segment;
 import utility.Utility;
+import main.main;
 
 public class BSP {
 	private BSPNode root;

@@ -2,6 +2,7 @@ package map;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import player.Camera;
 
 import javax.swing.JPanel;
 
@@ -103,6 +104,8 @@ public class MapRenderer2D extends JPanel {
         drawBspSegment(g);
         
         drawNormalBspSeg(g);
+        
+        drawCam(g);
 	}
 	
 	public void drawBspSegment(Graphics g) {
@@ -118,6 +121,13 @@ public class MapRenderer2D extends JPanel {
 			
 			g.drawString(Integer.toString(i), middleSegX, middleSegY);
 		}
+	}
+	
+	public void drawCam(Graphics g) {
+		g.setColor(Color.GREEN);
+		
+		g.fillOval(convertPoint(Camera.getSelf().pos()).getX()-5, convertPoint(Camera.getSelf().pos()).getY()-5, 10, 10);
+		this.drawWall(g, convertSeg(Camera.getSelf().vision));
 	}
 	
 	public void drawNormal(Graphics g) {

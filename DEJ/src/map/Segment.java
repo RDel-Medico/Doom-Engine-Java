@@ -23,6 +23,26 @@ public class Segment {
 		return a;
 	}
 	
+	public void rotate(double yawDegrees) {
+        // Convert degrees to radians
+        double yawRadians = Math.toRadians(yawDegrees);
+
+        // Get the current movement vector (x and y)
+        int mvtX = getXMouvement();
+        int mvtY = getYMouvement();
+
+        // Apply the 2D rotation matrix
+        double cosTheta = Math.cos(yawRadians);
+        double sinTheta = Math.sin(yawRadians);
+
+        // New x and y after rotation
+        int newMvtX = (int) Math.round(mvtX * cosTheta - mvtY * sinTheta);
+        int newMvtY = (int) Math.round(mvtX * sinTheta + mvtY * cosTheta);
+
+        // Update point B based on the new movement vector
+        this.b = new Point(this.a.getX() + newMvtX, this.a.getY() + newMvtY);
+    }
+	
 	public Point getMiddle() {
 		int middleSegX = Math.min(this.a.getX(), this.b.getX()) + Math.abs((this.a.getX() - this.b.getX())) / 2;
 		int middleSegY = Math.min(this.a.getY(), this.b.getY()) + Math.abs((this.a.getY() - this.b.getY())) / 2;
@@ -56,5 +76,21 @@ public class Segment {
 	
 	public int getYMouvement() {
 		return this.b.getY() - this.a.getY();
+	}
+
+	public void up() {
+		this.b.up();
+	}
+
+	public void down() {
+		this.b.down();
+	}
+
+	public void left() {
+		this.b.left();
+	}
+
+	public void right() {
+		this.b.right();
 	}
 }

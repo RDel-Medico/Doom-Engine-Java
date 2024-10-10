@@ -12,7 +12,7 @@ public class Utility {
 		return crossProduct2D(s, new Segment(s.getA(), c)) < 0;
 	}
 	
-	public static boolean isInFront(Segment s1, Segment s2	) {
+	public static boolean isInFront(Segment s1, Segment s2) {
 		return crossProduct2D(s1, s2) < 0;
 	}
 	
