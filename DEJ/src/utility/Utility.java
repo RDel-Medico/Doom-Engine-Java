@@ -30,7 +30,9 @@ public class Utility {
 	public static boolean intersection(Segment s1, Segment s2) {
 		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
 		double den = crossProduct2D(s1, s2);
-		
+		if (0.0 < num / den && num / den < 1.0) {
+			return true;
+		}
 		return 0.0 < num / den && num / den < 1.0;
 	}
 	
@@ -46,16 +48,16 @@ public class Utility {
 	}
 	
 	public static boolean collisionOnFront(Segment s1, Segment s2) {
-		int num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
-		int den = crossProduct2D(s1, s2);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double den = crossProduct2D(s1, s2);
 		
-		return num < 0 || (num == 0 && den > 0);
+		return num < 0 || (Math.round(num) == 0 && den > 0);
 	}
 	
 	public static boolean collisionOnBack(Segment s1, Segment s2) {
-		int num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
-		int den = crossProduct2D(s1, s2);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double den = crossProduct2D(s1, s2);
 		
-		return num > 0 || (num == 0 && den < 0);
+		return num > 0 || (Math.round(num) == 0 && den < 0);
 	}
 }

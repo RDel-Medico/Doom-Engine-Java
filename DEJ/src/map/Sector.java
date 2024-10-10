@@ -30,7 +30,7 @@ public class Sector {
 			int curr = s.getA().getX();
 			if (s.getA().getX() > currMax) currMax = curr;
 			curr = s.getB().getX();
-			if (s.getA().getX() > currMax) currMax = curr;
+			if (s.getB().getX() > currMax) currMax = curr;
 		}
 		
 		return currMax;
@@ -43,7 +43,7 @@ public class Sector {
 			int curr = s.getA().getY();
 			if (s.getA().getY() > currMax) currMax = curr;
 			curr = s.getB().getY();
-			if (s.getA().getY() > currMax) currMax = curr;
+			if (s.getB().getY() > currMax) currMax = curr;
 		}
 		
 		return currMax;
@@ -56,7 +56,7 @@ public class Sector {
 			int curr = s.getA().getX();
 			if (s.getA().getX() < currMin) currMin = curr;
 			curr = s.getB().getX();
-			if (s.getA().getX() < currMin) currMin = curr;
+			if (s.getB().getX() < currMin) currMin = curr;
 		}
 		
 		return currMin;
@@ -69,7 +69,7 @@ public class Sector {
 			int curr = s.getA().getY();
 			if (s.getA().getY() < currMin) currMin = curr;
 			curr = s.getB().getY();
-			if (s.getA().getY() < currMin) currMin = curr;
+			if (s.getB().getY() < currMin) currMin = curr;
 		}
 		
 		return currMin;

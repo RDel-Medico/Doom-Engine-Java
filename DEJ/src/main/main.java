@@ -27,14 +27,14 @@ public class main {
 		Point c = new Point(50, 50);
 		Point d = new Point(50, 0);
 		
-		Segment[] seg = new Segment[] {new Segment(a, b), new Segment(b, c), new Segment(c, d), new Segment(d, a)};
+		Segment[] seg = new Segment[] {new Segment(b, a), new Segment(c, b), new Segment(d, c), new Segment(a, d)};
 		
-		Point e = new Point(20, 20);
-		Point f = new Point(30, 30);
-		Point g = new Point(20, 40);
-		Point h = new Point(10, 30);
+		Point e = new Point(10, 20);
+		Point f = new Point(30, 20);
+		Point g = new Point(30, 40);
+		Point h = new Point(10, 40);
 		
-		Segment[] obstacle = new Segment[] {new Segment(e, f), new Segment(f, g), new Segment(g, h), new Segment(h, e)};
+		Segment[] obstacle = new Segment[] {new Segment(f, e), new Segment(g, f), new Segment(h, g), new Segment(e, h)};
 		
 		Sector[] level = new Sector[] {new Sector(obstacle), new Sector(seg)};
 		

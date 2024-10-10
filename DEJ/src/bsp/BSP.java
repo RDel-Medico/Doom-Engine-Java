@@ -60,26 +60,24 @@ public class BSP {
 	}
 
 	public void buildBSP(BSPNode b, Segment[] s) {
-		if (s == null || s.length == 0) System.out.println("BAD");
-		
 		Segment[] front = splitFrontSegments(s);
 		Segment[] back = splitBackSegments(s);
 		
 		this.addSegment(s[0], b);
 		b.split = s[0];
 		
-		if (front.length > 0) {
-			b.front = new BSPNode();
-			buildBSP(b.front, front);
-		} else {
-			b.front = null;
-		}
-		
 		if (back.length > 0) {
 			b.back = new BSPNode();
 			buildBSP(b.back, back);
 		} else {
 			b.back = null;
+		}
+		
+		if (front.length > 0) {
+			b.front = new BSPNode();
+			buildBSP(b.front, front);
+		} else {
+			b.front = null;
 		}
 	}
 	
@@ -93,20 +91,22 @@ public class BSP {
 				continue;
 			}
 			
-			if (Utility.intersection(splitter, s[i])) {
-				Point intersection = Utility.intersectionPoint(splitter, s[i]);
-				
-				Segment rightSegment = new Segment(s[i].getA(), intersection);
-				Segment leftSegment = new Segment(intersection, s[i].getB());
-				
-				if (Utility.crossProduct2D(new Segment(splitter.getA(), s[i].getA()), splitter) > 0) {
-					Segment temp = rightSegment;
-					rightSegment = leftSegment;
-					leftSegment = temp;
+			if (!Utility.isParallel(splitter, s[i])) {
+				if (Utility.intersection(splitter, s[i])) {
+					Point intersection = Utility.intersectionPoint(splitter, s[i]);
+					
+					Segment rightSegment = new Segment(s[i].getA(), intersection);
+					Segment leftSegment = new Segment(intersection, s[i].getB());
+					
+					if (Utility.crossProduct2D(new Segment(splitter.getA(), s[i].getA()), splitter) > 0) {
+						Segment temp = rightSegment;
+						rightSegment = leftSegment;
+						leftSegment = temp;
+					}
+					
+					res.add(rightSegment);
+					continue;
 				}
-				
-				res.add(rightSegment);
-				continue;
 			}
 			
 			if (Utility.collisionOnFront(splitter, s[i])) {
@@ -124,20 +124,22 @@ public class BSP {
 		
 		for (int i = 1; i < s.length; i++) {
 			
-			if (Utility.intersection(splitter, s[i])) {
-				Point intersection = Utility.intersectionPoint(splitter, s[i]);
-				
-				Segment rightSegment = new Segment(s[i].getA(), intersection);
-				Segment leftSegment = new Segment(intersection, s[i].getB());
-				
-				if (Utility.crossProduct2D(new Segment(splitter.getA(), s[i].getA()), splitter) > 0) {
-					Segment temp = rightSegment;
-					rightSegment = leftSegment;
-					leftSegment = temp;
+			if (!Utility.isParallel(splitter, s[i])) {
+				if (Utility.intersection(splitter, s[i])) {
+					Point intersection = Utility.intersectionPoint(splitter, s[i]);
+					
+					Segment rightSegment = new Segment(s[i].getA(), intersection);
+					Segment leftSegment = new Segment(intersection, s[i].getB());
+					
+					if (Utility.crossProduct2D(new Segment(splitter.getA(), s[i].getA()), splitter) > 0) {
+						Segment temp = rightSegment;
+						rightSegment = leftSegment;
+						leftSegment = temp;
+					}
+					
+					res.add(leftSegment);
+					continue;
 				}
-				
-				res.add(leftSegment);
-				continue;
 			}
 			
 			if (Utility.collisionOnBack(splitter, s[i])) {

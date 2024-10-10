@@ -98,8 +98,11 @@ public class MapRenderer2D extends JPanel {
         g.setColor(Color.DARK_GRAY);
         drawOriginalSegment(g);
         
+        //drawNormal(g);
+        
         drawBspSegment(g);
         
+        drawNormalBspSeg(g);
 	}
 	
 	public void drawBspSegment(Graphics g) {
@@ -109,6 +112,32 @@ public class MapRenderer2D extends JPanel {
 			g.setColor(Color.ORANGE);
 			g.fillOval(this.bspMap[i].getA().getX()-3, this.bspMap[i].getA().getY()-3, 6, 6);
 			g.fillOval(this.bspMap[i].getB().getX()-3, this.bspMap[i].getB().getY()-3, 6, 6);
+			
+			int middleSegX = Math.min(this.bspMap[i].getA().getX(), this.bspMap[i].getB().getX()) + Math.abs((this.bspMap[i].getA().getX() - this.bspMap[i].getB().getX())) / 2;
+			int middleSegY = Math.min(this.bspMap[i].getA().getY(), this.bspMap[i].getB().getY()) + Math.abs((this.bspMap[i].getA().getY() - this.bspMap[i].getB().getY())) / 2;
+			
+			g.drawString(Integer.toString(i), middleSegX, middleSegY);
+		}
+	}
+	
+	public void drawNormal(Graphics g) {
+		for (Sector s : this.map) {
+			for (Segment seg : s.getSegments()) {
+				Point middle = seg.getMiddle();
+				
+				g.setColor(Color.RED);
+				this.drawWall(g, seg.normal(middle.getX(), middle.getY()));
+			}
+		}
+	}
+	
+	public void drawNormalBspSeg(Graphics g) {
+		for (int i : this.segId) {
+			int middleSegX = Math.min(this.bspMap[i].getA().getX(), this.bspMap[i].getB().getX()) + Math.abs((this.bspMap[i].getA().getX() - this.bspMap[i].getB().getX())) / 2;
+			int middleSegY = Math.min(this.bspMap[i].getA().getY(), this.bspMap[i].getB().getY()) + Math.abs((this.bspMap[i].getA().getY() - this.bspMap[i].getB().getY())) / 2;
+			
+			g.setColor(Color.RED);
+			this.drawWall(g, this.bspMap[i].normal(middleSegX, middleSegY));
 		}
 	}
 	
