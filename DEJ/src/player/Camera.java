@@ -1,22 +1,20 @@
 package player;
 
-import map.Point;
-import map.Segment;
+import dataType.Point;
+import dataType.Segment;
 
 public class Camera {
 	public Point pos;
-	
 	public Segment vision;
 	
-	static Camera self;
+	private static Camera self;
 	
 	static {
 		self = new Camera();
 	}
 	
-	public Camera() {
+	private Camera() {
 		pos = new Point(10, 10);
-		
 		vision = new Segment(pos, new Point(pos.getX() + 1, pos.getY() + 1));
 	}
 	
@@ -25,26 +23,26 @@ public class Camera {
 	}
 	
 	public Point pos() {
-		return self.pos;
+		return pos;
 	}
 
 	public void moveForward() {
-		self.pos.up();
-		self.vision.up();
+		pos.moveUp();
+		vision.up();
 	}
 
 	public void moveBackward() {
-		self.pos.down();
-		self.vision.down();
+		pos.moveDown();
+		vision.down();
 	}
 
 	public void turnLeft() {
-		self.pos.left();
-		self.vision.left();
+		pos.moveLeft();
+		vision.left();
 	}
 
 	public void turnRight() {
-		self.pos.right();
-		self.vision.right();
+		pos.moveRight();
+		vision.right();
 	}
 }

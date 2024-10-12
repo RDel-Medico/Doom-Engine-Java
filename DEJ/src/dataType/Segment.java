@@ -1,4 +1,4 @@
-package map;
+package dataType;
 
 public class Segment {
 	private Point a;
@@ -9,37 +9,23 @@ public class Segment {
 		this.b = b;
 	}
 	
-	public Segment (int mvtX, int mvtY) {
-		this.a = new Point(0,0);
-		this.b = new Point(mvtX, mvtY);
-	}
-	
-	public Segment (int mvtX, int mvtY, int x, int y) {
-		this.a = new Point(x,y);
-		this.b = new Point(x+mvtX, y+mvtY);
-	}
-
-	public Point getA() {
-		return a;
+	public Segment (int mvtX, int mvtY, Point a) {
+		this.a = new Point(a.getX() , a.getY());
+		this.b = new Point(a.getX() + mvtX, a.getY() + mvtY);
 	}
 	
 	public void rotate(double yawDegrees) {
-        // Convert degrees to radians
         double yawRadians = Math.toRadians(yawDegrees);
 
-        // Get the current movement vector (x and y)
         int mvtX = getXMouvement();
         int mvtY = getYMouvement();
 
-        // Apply the 2D rotation matrix
         double cosTheta = Math.cos(yawRadians);
         double sinTheta = Math.sin(yawRadians);
 
-        // New x and y after rotation
         int newMvtX = (int) Math.round(mvtX * cosTheta - mvtY * sinTheta);
         int newMvtY = (int) Math.round(mvtX * sinTheta + mvtY * cosTheta);
 
-        // Update point B based on the new movement vector
         this.b = new Point(this.a.getX() + newMvtX, this.a.getY() + newMvtY);
     }
 	
@@ -49,25 +35,25 @@ public class Segment {
 		
 		return new Point(middleSegX, middleSegY);
 	}
-
-	public void setA(Point a) {
-		this.a = a;
+	
+	public Point getA() {
+		return a;
 	}
 
 	public Point getB() {
 		return b;
 	}
 	
-	public Segment normal() {
-		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10);
-	}
-	
-	public Segment normal(int x, int y) {
-		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, x, y);
-	}
-
 	public void setB(Point b) {
 		this.b = b;
+	}
+	
+	public void setA(Point a) {
+		this.a = a;
+	}
+	
+	public Segment normal(Point a) {
+		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a);
 	}
 	
 	public int getXMouvement() {
@@ -79,18 +65,34 @@ public class Segment {
 	}
 
 	public void up() {
-		this.b.up();
+		this.b.moveUp();
 	}
 
 	public void down() {
-		this.b.down();
+		this.b.moveDown();
 	}
 
 	public void left() {
-		this.b.left();
+		this.b.moveLeft();
 	}
 
 	public void right() {
-		this.b.right();
+		this.b.moveRight();
+	}
+	
+	public int getMaxX() {
+		return this.a.getX() > this.b.getX() ? this.a.getX() : this.b.getX();
+	}
+	
+	public int getMinX() {
+		return this.a.getX() < this.b.getX() ? this.a.getX() : this.b.getX();
+	}
+	
+	public int getMaxY() {
+		return this.a.getY() > this.b.getY() ? this.a.getY() : this.b.getY();
+	}
+	
+	public int getMinY() {
+		return this.a.getY() < this.b.getY() ? this.a.getY() : this.b.getY();
 	}
 }

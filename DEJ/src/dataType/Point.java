@@ -1,4 +1,4 @@
-package map;
+package dataType;
 
 public class Point {
 	private int x;
@@ -21,27 +21,23 @@ public class Point {
 		this.y = y;
 	}
 	
-	public Point minus(Point p) {
-		return new Point(x - p.getX(), y - p.getY());
-	}
-
 	public void setX(int x) {
 		this.x = x;
 	}
 
-	public void up() {
+	public void moveUp() {
 		this.y--;
 	}
 
-	public void down() {
+	public void moveDown() {
 		this.y++;
 	}
 
-	public void left() {
+	public void moveLeft() {
 		this.x--;
 	}
 
-	public void right() {
+	public void moveRight() {
 		this.x++;
 	}
 }

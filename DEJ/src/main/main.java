@@ -3,74 +3,91 @@ package main;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
 import bsp.BSP;
 import bsp.BSPTraversal;
-import map.MapRenderer2D;
-import map.Point;
-import map.Sector;
-import map.Segment;
+import dataType.Point;
+import dataType.Sector;
+import dataType.Segment;
+import game.Map;
 import player.Camera;
 
 public class main implements KeyListener {
-	final static int SCREEN_WIDTH = 1500;
-	final static int SCREEN_HEIGHT = 900;
+	public final static int SCREEN_WIDTH = 1500;
+	public final static int SCREEN_HEIGHT = 900;
+	
+	public final static Point DISPLAY_TOP_LEFT = new Point(100, 100);
+	public final static Point DISPLAY_BOTTOM_RIGHT = new Point(1400, 800);
 	
 	public static Camera player;
-	public static MapRenderer2D map;
+	public static Map map;
 	public static BSPTraversal bspT;
 	public static BSP bsp;
-	
-	public static int lastX;
 
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("First test");
+		JFrame frame = new JFrame("Doom Engine");
+		
 		frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		Point a = new Point(0, 0);
-		Point b = new Point(0, 50);
-		Point c = new Point(50, 50);
-		Point d = new Point(50, 0);
-		
-		Segment[] seg = new Segment[] {new Segment(b, a), new Segment(c, b), new Segment(d, c), new Segment(a, d)};
-		
-		Point e = new Point(10, 20);
-		Point f = new Point(30, 20);
-		Point g = new Point(30, 40);
-		Point h = new Point(10, 40);
-		
-		Segment[] obstacle = new Segment[] {new Segment(f, e), new Segment(g, f), new Segment(h, g), new Segment(e, h)};
-		
-		Point i = new Point(30, 10);
-		Point j = new Point(40, 20);
-		Point k = new Point(40, 10);
-		
-		Segment[] triangle = new Segment[] {new Segment(i, j), new Segment(j, k), new Segment(k, i), new Segment(e, h)};
-		
-		Sector[] level = new Sector[] {new Sector(triangle), new Sector(obstacle), new Sector(seg)};
-		
-		player = Camera.getSelf();
-		
-		bsp = new BSP(level);
-		bspT = new BSPTraversal(bsp.getRoot(), bsp.getSegments());
-		
-		
-		
-		map = new MapRenderer2D(level);
-		bspT.update();
-		map.setSegment(bsp.getSegments(), bspT.getId());
+		setup();
 		
 		frame.add(map);
 		
 		frame.addKeyListener(new main());
 		
 		frame.setVisible(true);
+	}
+	
+	public static void setup() {
+		Point a = new Point(0, 0);
+		Point b = new Point(0, 50);
+		Point c = new Point(50, 50);
+		Point d = new Point(50, 0);
+		
+		ArrayList<Segment> seg = new ArrayList<Segment>();
+		seg.add(new Segment(b, a));
+		seg.add(new Segment(c, b));
+		seg.add(new Segment(d, c));
+		seg.add(new Segment(a, d));
+		
+		Point e = new Point(10, 20);
+		Point f = new Point(30, 20);
+		Point g = new Point(30, 40);
+		Point h = new Point(10, 40);
+		
+		ArrayList<Segment> obstacle = new ArrayList<>();
+		obstacle.add(new Segment(f, e));
+		obstacle.add(new Segment(g, f));
+		obstacle.add(new Segment(h, g));
+		obstacle.add(new Segment(e, h));
+		
+		Point i = new Point(30, 10);
+		Point j = new Point(40, 20);
+		Point k = new Point(40, 10);
+		
+		ArrayList<Segment> triangle = new ArrayList<>();
+		triangle.add(new Segment(i, j));
+		triangle.add(new Segment(j, k));
+		triangle.add(new Segment(k, i));
+		
+		ArrayList<Sector> level = new ArrayList<Sector>();
+		level.add(new Sector(triangle));
+		level.add(new Sector(obstacle));
+		level.add(new Sector(seg));
+		
+		map = new Map(level);
+		bsp = new BSP(level);
+		bspT = new BSPTraversal(bsp.getRoot());
+		
+		player = Camera.getSelf();
+		
+		bspT.update();
+		map.updateBspSegment(bsp.getSegments(), bspT.getId());
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -97,7 +114,7 @@ public class main implements KeyListener {
         }
 
         bspT.update();
-        map.setSegment(bsp.getSegments(), bspT.getId());
+        map.updateBspSegment(bsp.getSegments(), bspT.getId());
         map.repaint();
     }
 

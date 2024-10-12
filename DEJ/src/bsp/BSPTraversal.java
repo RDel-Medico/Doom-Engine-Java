@@ -1,57 +1,43 @@
 package bsp;
 
-import map.Point;
-import map.Segment;
 import utility.Utility;
+
+import java.util.ArrayList;
+
+import dataType.BSPNode;
 import main.main;
 
 public class BSPTraversal {
 	
 	BSPNode root;
-	Segment[] map;
+	ArrayList<Integer> idToDraw;
 	
-	int[] idToDraw;
-	
-	public BSPTraversal(BSPNode root, Segment[] map) {
+	public BSPTraversal(BSPNode root) {
 		this.root = root;
-		this.map = map;
-
-		this.idToDraw = new int[0];
+		this.idToDraw = new ArrayList<Integer>();
 	}
 	
-	public int[] getId() {
+	public ArrayList<Integer> getId() {
 		return this.idToDraw;
 	}
 	
 	public void update() {
-		this.idToDraw = new int[0];
+		this.idToDraw.clear();;
 		this.traverse(root);
-	}
-	
-	private void addId(int id) {
-		int[] newId = new int[this.idToDraw.length + 1];
-		
-		for (int i = 0; i < this.idToDraw.length; i++) {
-			newId[i] = this.idToDraw[i];
-		}
-		
-		newId[this.idToDraw.length] = id;
-		
-		this.idToDraw = newId;
 	}
 
 	public void traverse(BSPNode curr) {
 		if (curr == null) return;
 		
-		//if (!Utility.isInFront(main.player.vision, curr.split)) {
-		if (!Utility.isInFront(curr.split, main.player.pos)) {
-			this.traverse(curr.front);
-			this.addId(curr.id);
-			this.traverse(curr.back);
+		if (!Utility.isInFront(main.player.vision, curr.getSplit())) {
+		//if (!Utility.isInFront(curr.getSplit(), main.player.pos)) {
+			this.traverse(curr.getFront());
+			this.idToDraw.add(curr.getId());
+			this.traverse(curr.getBack());
 		} else {
-			this.traverse(curr.back);
+			this.traverse(curr.getBack());
 			//this.addId(curr.id);
-			this.traverse(curr.front);
+			this.traverse(curr.getFront());
 		}
 	}
 }

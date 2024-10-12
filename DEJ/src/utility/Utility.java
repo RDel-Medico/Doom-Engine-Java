@@ -1,7 +1,7 @@
 package utility;
 
-import map.Point;
-import map.Segment;
+import dataType.Point;
+import dataType.Segment;
 
 public class Utility {
 	public static int crossProduct2D (Segment ab, Segment cd) {
