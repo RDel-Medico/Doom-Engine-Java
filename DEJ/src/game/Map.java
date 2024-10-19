@@ -1,16 +1,15 @@
 package game;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import dataType.Point;
 import dataType.Sector;
 import dataType.Segment;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import javax.swing.JPanel;
+import main.Main;
 import player.Camera;
-import main.main;
+import utility.Utility;
 
 public class Map extends JPanel{
 	private ArrayList<Sector> map;
@@ -23,7 +22,7 @@ public class Map extends JPanel{
 	public Map (ArrayList<Sector> map) {
 		this.map = map;
 		this.convertedMap = this.convertSectors(map);
-		this.bspMap = new ArrayList<Segment>();
+		this.bspMap = new ArrayList<>();
 	}
 	
 	@Override
@@ -31,22 +30,54 @@ public class Map extends JPanel{
 		super.paintComponent(g);
         this.setBackground(Color.BLACK);
         
-        drawAllSector(g);
-        
-        //drawNormal(g);
-        
-        drawBspSegment(g);
-        
-        drawNormalBspSeg(g);
-        
-        drawCam(g);
+        this.draw2DMap(g);
+		//this.draw3DMap(g);
+	}
+
+	public void draw2DMap(Graphics g) {
+		drawAllSector2D(g);
+		drawBspSegment2D(g);
+		drawNormalBspSeg2D(g);
+		drawCam2D(g);
+	}
+
+	public void draw3DMap(Graphics g) {
+		for (Sector s : this.convertedMap)
+			for (Segment seg : s.getSegments())
+				this.drawWall3D(g, seg);
+	}
+
+	private void drawWall3D(Graphics g, Segment s) {
+		Point a = s.getA();
+		Point b = s.getB();
+		
+		Point screenA = Utility.project(a);
+		Point screenB = Utility.project(b);
+
+		int x1 = screenA.getX();
+		int y1 = screenA.getY();
+		int x2 = screenB.getX();
+		int y2 = screenB.getY();
+
+		int x3 = x1;
+		int y3 = Main.DISPLAY_BOTTOM_RIGHT.getY();
+		int x4 = x2;
+		int y4 = Main.DISPLAY_BOTTOM_RIGHT.getY();
+
+		g.setColor(Color.WHITE);
+		g.drawLine(x1, y1, x3, y3);
+		g.drawLine(x2, y2, x4, y4);
+
+		g.setColor(Color.GRAY);
+		g.drawLine(x3, y3, x4, y4);
 	}
 	
-	public void drawBspSegment(Graphics g) {
+
+	public void drawBspSegment2D(Graphics g) {
 		for (int i : this.bspSegmentVisible) {
 			Segment curr = this.bspMap.get(i);
 			g.setColor(Color.WHITE);
-			this.drawWall(g, curr);
+			this.drawWall2D(g, curr);
 			
 			g.setColor(Color.ORANGE);
 			g.fillOval(curr.getA().getX()-3, curr.getA().getY()-3, 6, 6);
@@ -57,10 +88,10 @@ public class Map extends JPanel{
 		}
 	}
 	
-	public void drawNormalBspSeg(Graphics g) {
+	public void drawNormalBspSeg2D(Graphics g) {
 		g.setColor(Color.RED);
 		for (int i : this.bspSegmentVisible)
-			this.drawWall(g, this.bspMap.get(i).normal(this.bspMap.get(i).getMiddle()));
+			this.drawWall2D(g, this.bspMap.get(i).normal(this.bspMap.get(i).getMiddle()));
 	}
 	
 	public void updateBspSegment(ArrayList<Segment> s, ArrayList<Integer> id) {
@@ -73,7 +104,7 @@ public class Map extends JPanel{
 	}
 	
 	private ArrayList<Sector> convertSectors (ArrayList<Sector> sectors) {
-		ArrayList<Sector> res = new ArrayList<Sector>();
+		ArrayList<Sector> res = new ArrayList<>();
 		
 		for (int i = 0; i < sectors.size(); i++)
 			res.add(convertSector(sectors.get(i)));
@@ -82,7 +113,7 @@ public class Map extends JPanel{
 	}
 	
 	private Sector convertSector(Sector sector) {
-		ArrayList<Segment> res = new ArrayList<Segment>();
+		ArrayList<Segment> res = new ArrayList<>();
 		
 		for (int i = 0; i < sector.getNbSegment(); i++)
 			res.add(convertSeg(sector.getSegment(i)));
@@ -95,35 +126,35 @@ public class Map extends JPanel{
 	}
 	
 	private Point convertPoint(Point a) {
-		return new Point((a.getX() - this.getMinX()) * (main.DISPLAY_BOTTOM_RIGHT.getX() - main.DISPLAY_TOP_LEFT.getX()) / (this.getMaxX() - this.getMinX()) + main.DISPLAY_TOP_LEFT.getX(),
-				(a.getY() - this.getMinY()) * (main.DISPLAY_BOTTOM_RIGHT.getY() - main.DISPLAY_TOP_LEFT.getY()) / (this.getMaxY() - this.getMinY()) + main.DISPLAY_TOP_LEFT.getY());
+		return new Point((a.getX() - this.getMinX()) * (Main.DISPLAY_BOTTOM_RIGHT.getX() - Main.DISPLAY_TOP_LEFT.getX()) / (this.getMaxX() - this.getMinX()) + Main.DISPLAY_TOP_LEFT.getX(),
+				(a.getY() - this.getMinY()) * (Main.DISPLAY_BOTTOM_RIGHT.getY() - Main.DISPLAY_TOP_LEFT.getY()) / (this.getMaxY() - this.getMinY()) + Main.DISPLAY_TOP_LEFT.getY());
 	}
 	
-	public void drawCam(Graphics g) {
+	public void drawCam2D(Graphics g) {
 		g.setColor(Color.GREEN);
 		g.fillOval(convertPoint(Camera.getSelf().pos()).getX()-5, convertPoint(Camera.getSelf().pos()).getY()-5, 10, 10);
-		this.drawWall(g, convertSeg(Camera.getSelf().vision));
+		this.drawWall2D(g, convertSeg(Camera.getSelf().vision));
 	}
 	
 	public void drawNormal(Graphics g) {
 		g.setColor(Color.RED);
 		for (Sector s : this.convertedMap)
 			for (Segment seg : s.getSegments())
-				this.drawWall(g, seg.normal(seg.getMiddle()));
+				this.drawWall2D(g, seg.normal(seg.getMiddle()));
 	}
 	
-	private void drawAllSector(Graphics g) {
+	private void drawAllSector2D(Graphics g) {
 		g.setColor(Color.DARK_GRAY);
 		for (Sector s : this.convertedMap)
-			this.drawAllSegment(g, s);
+			this.drawAllSegment2D(g, s);
 	}
 
-	private void drawAllSegment(Graphics g, Sector s) {
+	private void drawAllSegment2D(Graphics g, Sector s) {
 		for (Segment seg : s.getSegments())
-			drawWall(g, seg);
+			drawWall2D(g, seg);
 	}
 
-	private void drawWall(Graphics g, Segment s) {
+	private void drawWall2D(Graphics g, Segment s) {
 		g.drawLine(s.getA().getX(), s.getA().getY(), s.getB().getX(), s.getB().getY());
 	}
 
@@ -162,4 +193,28 @@ public class Map extends JPanel{
 
 		return max;
 	}
+
+    public ArrayList<Sector> getMap() {
+        return map;
+    }
+
+    public void setMap(ArrayList<Sector> map) {
+        this.map = map;
+    }
+
+    public ArrayList<Sector> getConvertedMap() {
+        return convertedMap;
+    }
+
+    public void setConvertedMap(ArrayList<Sector> convertedMap) {
+        this.convertedMap = convertedMap;
+    }
+
+    public ArrayList<Segment> getBspMap() {
+        return bspMap;
+    }
+
+    public void setBspMap(ArrayList<Segment> bspMap) {
+        this.bspMap = bspMap;
+    }
 }

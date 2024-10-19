@@ -2,8 +2,42 @@ package utility;
 
 import dataType.Point;
 import dataType.Segment;
+import main.Main;
 
 public class Utility {
+
+	public static Point project(Point a) {
+
+		int dx = a.getX() - Main.player.pos().getX();
+		int dy = a.getY() - Main.player.pos().getY();
+
+		double angle = Math.toRadians(Main.player.getYaw());
+		double cos = Math.cos(angle);
+		double sin = Math.sin(angle);
+
+		int x = (int) (dx * cos - dy * sin);
+		int y = (int) (dx * sin + dy * cos);
+
+		int screenX = Main.SCREEN_WIDTH / 2 + x * Main.SCREEN_WIDTH / (2*y);
+		int screenY = Main.SCREEN_HEIGHT / 2 - Main.SCREEN_HEIGHT / (2*y);
+
+		return new Point(screenX, screenY);
+	}
+
+	public static boolean isInFront(Segment s, Point c, double yaw) {
+		int dx = c.getX() - s.getA().getX();
+		int dy = c.getY() - s.getA().getY();
+
+		double angle = Math.toRadians(yaw);
+		double cos = Math.cos(angle);
+		double sin = Math.sin(angle);
+
+		int x = (int) (dx * cos - dy * sin);
+		int y = (int) (dx * sin + dy * cos);
+
+		return crossProduct2D(s, new Segment(s.getA(), new Point(x, y))) < 0;
+	}
+
 	public static int crossProduct2D (Segment ab, Segment cd) {
 		return (ab.getXMouvement() * cd.getYMouvement() - cd.getXMouvement() * ab.getYMouvement());
 	}

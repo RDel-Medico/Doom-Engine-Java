@@ -1,11 +1,9 @@
 package bsp;
 
-import utility.Utility;
-
-import java.util.ArrayList;
-
 import dataType.BSPNode;
-import main.main;
+import java.util.ArrayList;
+import main.Main;
+import utility.Utility;
 
 public class BSPTraversal {
 	
@@ -14,7 +12,7 @@ public class BSPTraversal {
 	
 	public BSPTraversal(BSPNode root) {
 		this.root = root;
-		this.idToDraw = new ArrayList<Integer>();
+		this.idToDraw = new ArrayList<>();
 	}
 	
 	public ArrayList<Integer> getId() {
@@ -22,21 +20,20 @@ public class BSPTraversal {
 	}
 	
 	public void update() {
-		this.idToDraw.clear();;
+		this.idToDraw.clear();
 		this.traverse(root);
 	}
 
 	public void traverse(BSPNode curr) {
 		if (curr == null) return;
 		
-		if (!Utility.isInFront(main.player.vision, curr.getSplit())) {
-		//if (!Utility.isInFront(curr.getSplit(), main.player.pos)) {
+		if (Utility.isInFront(curr.getSplit(), Main.player.vision)
+		&& !Utility.isInFront(curr.getSplit(), Main.player.pos)) {
 			this.traverse(curr.getFront());
 			this.idToDraw.add(curr.getId());
 			this.traverse(curr.getBack());
 		} else {
 			this.traverse(curr.getBack());
-			//this.addId(curr.id);
 			this.traverse(curr.getFront());
 		}
 	}

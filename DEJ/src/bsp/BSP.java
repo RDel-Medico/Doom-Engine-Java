@@ -1,10 +1,9 @@
 package bsp;
 
-import java.util.ArrayList;
-
 import dataType.BSPNode;
 import dataType.Sector;
 import dataType.Segment;
+import java.util.ArrayList;
 import utility.Utility;
 
 public class BSP {
@@ -15,7 +14,7 @@ public class BSP {
 	
 	
 	public BSP (ArrayList<Sector> m) {
-		this.map = new ArrayList<Segment>();
+		this.map = new ArrayList<>();
 		
 		for (Sector s : m) {
 			ArrayList<Segment> temp = s.getSegments();
@@ -28,7 +27,7 @@ public class BSP {
 		this.buildBSP(this.root, this.map);
 	}
 
-	public void buildBSP(BSPNode b, ArrayList<Segment> s) {
+	private void buildBSP(BSPNode b, ArrayList<Segment> s) {
 		ArrayList<Segment> front = splitFrontSegments(s);
 		ArrayList<Segment> back = splitBackSegments(s);
 		
@@ -37,14 +36,14 @@ public class BSP {
 		
 		b.setSplit(s.get(0));
 		
-		if (back.size() > 0) {
+		if (!back.isEmpty()) {
 			b.setBack(new BSPNode());
 			buildBSP(b.getBack(), back);
 		} else {
-			b.setBack(null);;
+			b.setBack(null);
 		}
 		
-		if (front.size() > 0) {
+		if (!front.isEmpty()) {
 			b.setFront(new BSPNode());
 			buildBSP(b.getFront(), front);
 		} else {
@@ -54,7 +53,7 @@ public class BSP {
 	
 	public ArrayList<Segment> splitFrontSegments(ArrayList<Segment> s) {
 		Segment splitter = s.get(0);
-		ArrayList<Segment> res = new ArrayList<Segment>();
+		ArrayList<Segment> res = new ArrayList<>();
 		
 		for (int i = 1; i < s.size(); i++) {
 			if (Utility.isCollinear(splitter, s.get(i))) {
@@ -79,7 +78,7 @@ public class BSP {
 	
 	public ArrayList<Segment> splitBackSegments(ArrayList<Segment> s) {
 		Segment splitter = s.get(0);
-		ArrayList<Segment> res = new ArrayList<Segment>();
+		ArrayList<Segment> res = new ArrayList<>();
 		
 		for (int i = 1; i < s.size(); i++) {
 			if (Utility.intersection(splitter, s.get(i))) {
@@ -104,4 +103,24 @@ public class BSP {
 	public ArrayList<Segment> getSegments() {
 		return this.bspMap;
 	}
+
+    public void setRoot(BSPNode root) {
+        this.root = root;
+    }
+
+    public ArrayList<Segment> getMap() {
+        return map;
+    }
+
+    public void setMap(ArrayList<Segment> map) {
+        this.map = map;
+    }
+
+    public ArrayList<Segment> getBspMap() {
+        return bspMap;
+    }
+
+    public void setBspMap(ArrayList<Segment> bspMap) {
+        this.bspMap = bspMap;
+    }
 }

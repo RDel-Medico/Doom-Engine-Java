@@ -4,10 +4,11 @@ import dataType.Point;
 import dataType.Segment;
 
 public class Camera {
+
 	public Point pos;
 	public Segment vision;
 	
-	private static Camera self;
+	private static final Camera self;
 	
 	static {
 		self = new Camera();
@@ -16,6 +17,10 @@ public class Camera {
 	private Camera() {
 		pos = new Point(10, 10);
 		vision = new Segment(pos, new Point(pos.getX() + 1, pos.getY() + 1));
+	}
+
+	public double getYaw() {
+		return Math.toDegrees(Math.atan2(vision.getYMouvement(), vision.getXMouvement()));
 	}
 	
 	public static Camera getSelf() {

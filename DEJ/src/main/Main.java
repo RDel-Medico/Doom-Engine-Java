@@ -1,21 +1,19 @@
 package main;
 
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-
 import bsp.BSP;
 import bsp.BSPTraversal;
 import dataType.Point;
 import dataType.Sector;
 import dataType.Segment;
 import game.Map;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import javax.swing.JFrame;
 import player.Camera;
 
-public class main implements KeyListener {
+public class Main implements KeyListener {
 	public final static int SCREEN_WIDTH = 1500;
 	public final static int SCREEN_HEIGHT = 900;
 	
@@ -38,7 +36,7 @@ public class main implements KeyListener {
 		
 		frame.add(map);
 		
-		frame.addKeyListener(new main());
+		frame.addKeyListener(new Main());
 		
 		frame.setVisible(true);
 	}
@@ -49,7 +47,7 @@ public class main implements KeyListener {
 		Point c = new Point(50, 50);
 		Point d = new Point(50, 0);
 		
-		ArrayList<Segment> seg = new ArrayList<Segment>();
+		ArrayList<Segment> seg = new ArrayList<>();
 		seg.add(new Segment(b, a));
 		seg.add(new Segment(c, b));
 		seg.add(new Segment(d, c));
@@ -75,7 +73,7 @@ public class main implements KeyListener {
 		triangle.add(new Segment(j, k));
 		triangle.add(new Segment(k, i));
 		
-		ArrayList<Sector> level = new ArrayList<Sector>();
+		ArrayList<Sector> level = new ArrayList<>();
 		level.add(new Sector(triangle));
 		level.add(new Sector(obstacle));
 		level.add(new Sector(seg));
@@ -90,28 +88,17 @@ public class main implements KeyListener {
 		map.updateBspSegment(bsp.getSegments(), bspT.getId());
 	}
 	
+	@Override
 	public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        switch (keyCode) {
-            case KeyEvent.VK_UP:
-                player.moveForward();
-                break;
-            case KeyEvent.VK_DOWN:
-                player.moveBackward();
-                break;
-            case KeyEvent.VK_LEFT:
-                player.turnLeft();
-                break;
-            case KeyEvent.VK_RIGHT:
-                player.turnRight();
-                break;
-            case KeyEvent.VK_Q:
-                player.vision.rotate(-45);
-                break;
-            case KeyEvent.VK_D:
-                player.vision.rotate(45);
-                break;
-        }
+		switch (keyCode) {
+			case KeyEvent.VK_UP -> player.moveForward();
+			case KeyEvent.VK_DOWN -> player.moveBackward();
+			case KeyEvent.VK_LEFT -> player.turnLeft();
+			case KeyEvent.VK_RIGHT -> player.turnRight();
+			case KeyEvent.VK_Q -> player.vision.rotate(-45);
+			case KeyEvent.VK_D -> player.vision.rotate(45);
+		}
 
         bspT.update();
         map.updateBspSegment(bsp.getSegments(), bspT.getId());
@@ -127,6 +114,5 @@ public class main implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
 	}
 }
