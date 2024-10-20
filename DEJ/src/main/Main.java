@@ -96,8 +96,8 @@ public class Main implements KeyListener {
 			case KeyEvent.VK_DOWN -> player.moveBackward();
 			case KeyEvent.VK_LEFT -> player.turnLeft();
 			case KeyEvent.VK_RIGHT -> player.turnRight();
-			case KeyEvent.VK_Q -> player.vision.rotate(-45);
-			case KeyEvent.VK_D -> player.vision.rotate(45);
+			case KeyEvent.VK_Q -> player.rotate(-45);
+			case KeyEvent.VK_D -> player.rotate(45);
 		}
 
         bspT.update();

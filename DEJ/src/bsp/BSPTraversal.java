@@ -24,17 +24,27 @@ public class BSPTraversal {
 		this.traverse(root);
 	}
 
+	public void traverseWithoutAdd(BSPNode curr) {
+		if (curr == null) return;
+		this.traverse(curr.getBack());
+		this.traverse(curr.getFront());
+	}
+
 	public void traverse(BSPNode curr) {
 		if (curr == null) return;
 		
-		if (Utility.isInFront(curr.getSplit(), Main.player.vision)
-		&& !Utility.isInFront(curr.getSplit(), Main.player.pos)) {
-			this.traverse(curr.getFront());
-			this.idToDraw.add(curr.getId());
-			this.traverse(curr.getBack());
-		} else {
-			this.traverse(curr.getBack());
-			this.traverse(curr.getFront());
+		if (Utility.isInFront(curr.getSplit(), Main.player.pos)) {
+			traverseWithoutAdd(curr);
+			return;
 		}
+
+		if (!Utility.isWithinFOV(curr.getSplit(), Main.player.pos(), Main.player.getFOV(), Main.player.getYaw())) {
+			traverseWithoutAdd(curr);
+			return;
+		}
+
+		this.traverse(curr.getFront());
+		this.idToDraw.add(curr.getId());
+		this.traverse(curr.getBack());
 	}
 }

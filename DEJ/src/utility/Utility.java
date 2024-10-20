@@ -24,22 +24,56 @@ public class Utility {
 		return new Point(screenX, screenY);
 	}
 
-	public static boolean isInFront(Segment s, Point c, double yaw) {
-		int dx = c.getX() - s.getA().getX();
-		int dy = c.getY() - s.getA().getY();
+	public static boolean isWithinFOV(Segment s, Point c, double fov, double yaw) {
+		Point a = s.getA();
+        Point b = s.getB();
 
-		double angle = Math.toRadians(yaw);
+        double angleA = Math.toDegrees(Math.atan2(a.getY() - c.getY(), a.getX() - c.getX())) - yaw;
+        double angleB = Math.toDegrees(Math.atan2(b.getY() - c.getY(), b.getX() - c.getX())) - yaw;
+
+        angleA = normalizeAngle(angleA);
+		angleB = normalizeAngle(angleB);
+
+        double halfFOV = fov / 2.0;
+
+        return (angleA >= -halfFOV && angleA <= halfFOV) || (angleB >= -halfFOV && angleB <= halfFOV);
+	}
+
+	private static double normalizeAngle(double angle) {
+		angle = angle % 360;
+		if (angle > 180) {
+			angle -= 360;
+		} else if (angle < -180) {
+			angle += 360;
+		}
+		return angle;
+	}
+
+	public static Point calculateFOVEndPoint (Point a, double yaw, double fov) {
+		double angle = Math.toRadians(yaw + fov / 2.0);
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 
-		int x = (int) (dx * cos - dy * sin);
-		int y = (int) (dx * sin + dy * cos);
+		int x = (int) (a.getX() + 1000 * cos);
+		int y = (int) (a.getY() + 1000 * sin);
 
-		return crossProduct2D(s, new Segment(s.getA(), new Point(x, y))) < 0;
+		return new Point(x, y);
+	}
+
+	public static boolean isCollinear(Segment s, Point c) {
+		return 0 == crossProduct2D(s, new Segment(s.getA(), c));
+	}
+
+	public static boolean isInFront(Segment s, Point c, double yaw) {
+		return crossProduct2D(s, new Segment(s.getA(), c)) < 0;
 	}
 
 	public static int crossProduct2D (Segment ab, Segment cd) {
-		return (ab.getXMouvement() * cd.getYMouvement() - cd.getXMouvement() * ab.getYMouvement());
+		int x1 = ab.getB().getX() - ab.getA().getX();
+        int y1 = ab.getB().getY() - ab.getA().getY();
+        int x2 = cd.getB().getX() - cd.getA().getX();
+        int y2 = cd.getB().getY() - cd.getA().getY();
+        return x1 * y2 - y1 * x2;
 	}
 	
 	public static boolean isInFront(Segment s, Point c) {

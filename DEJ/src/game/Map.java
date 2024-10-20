@@ -15,7 +15,7 @@ public class Map extends JPanel{
 	private ArrayList<Sector> map;
 	private ArrayList<Sector> convertedMap;
 	
-	private ArrayList<Segment> bspMap;
+	private ArrayList<Segment> bspMap; // Converted segments
 	private ArrayList<Integer> bspSegmentVisible;
 	
 	
@@ -39,6 +39,22 @@ public class Map extends JPanel{
 		drawBspSegment2D(g);
 		drawNormalBspSeg2D(g);
 		drawCam2D(g);
+		drawFOVLines(g);
+	}
+
+	public void drawFOVLines(Graphics g) {
+		Point playerPos = Main.player.pos();
+		double playerYaw = Main.player.getYaw();
+		double playerFOV = Main.player.getFOV();
+
+		Point leftFOVEndPoint = convertPoint(Utility.calculateFOVEndPoint(playerPos, playerYaw, - playerFOV / 2.0));
+		Point rightFOVEndPoint = convertPoint(Utility.calculateFOVEndPoint(playerPos, playerYaw, playerFOV / 2.0));
+
+		playerPos = convertPoint(playerPos);
+
+		g.setColor(Color.RED);
+		g.drawLine(playerPos.getX(), playerPos.getY(), leftFOVEndPoint.getX(), leftFOVEndPoint.getY());
+		g.drawLine(playerPos.getX(), playerPos.getY(), rightFOVEndPoint.getX(), rightFOVEndPoint.getY());
 	}
 
 	public void draw3DMap(Graphics g) {
@@ -133,7 +149,7 @@ public class Map extends JPanel{
 	public void drawCam2D(Graphics g) {
 		g.setColor(Color.GREEN);
 		g.fillOval(convertPoint(Camera.getSelf().pos()).getX()-5, convertPoint(Camera.getSelf().pos()).getY()-5, 10, 10);
-		this.drawWall2D(g, convertSeg(Camera.getSelf().vision));
+		this.drawWall2D(g, convertSeg(Camera.getSelf().getRotatedVision()));
 	}
 	
 	public void drawNormal(Graphics g) {
