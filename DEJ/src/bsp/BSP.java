@@ -18,8 +18,10 @@ public class BSP {
 		
 		for (Sector s : m) {
 			ArrayList<Segment> temp = s.getSegments();
-			for (Segment se : temp)
+			for (Segment se : temp) {
+				se.setSector(s);
 				this.map.add(se);
+			}
 		}
 		
 		this.root = new BSPNode();
@@ -62,11 +64,14 @@ public class BSP {
 			}
 			
 			if (Utility.intersection(splitter, s.get(i))) {
+				Segment temp;
 				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA()), splitter) > 0) {
-					res.add(new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB()));
+					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB());
 				} else {
-					res.add(new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i))));
+					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)));
 				}
+				temp.setSector(s.get(i).getSector());
+				res.add(temp);
 				continue;
 			}
 			
@@ -82,11 +87,14 @@ public class BSP {
 		
 		for (int i = 1; i < s.size(); i++) {
 			if (Utility.intersection(splitter, s.get(i))) {
+				Segment temp;
 				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA()), splitter) > 0) {
-					res.add(new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i))));
+					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)));
 				} else {
-					res.add(new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB()));
+					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB());
 				}
+				temp.setSector(s.get(i).getSector());
+				res.add(temp);
 				continue;
 			}
 			

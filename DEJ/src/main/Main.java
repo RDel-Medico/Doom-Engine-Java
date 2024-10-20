@@ -7,6 +7,7 @@ import dataType.Point;
 import dataType.Sector;
 import dataType.Segment;
 import game.Map;
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -74,9 +75,9 @@ public class Main implements KeyListener {
 		triangle.add(new Segment(k, i));
 		
 		ArrayList<Sector> level = new ArrayList<>();
-		level.add(new Sector(triangle));
-		level.add(new Sector(obstacle));
-		level.add(new Sector(seg));
+		level.add(new Sector(triangle, Color.RED, -5, 5));
+		level.add(new Sector(obstacle, Color.BLUE, -5, 5));
+		level.add(new Sector(seg, Color.GREEN, -5, 5));
 		
 		map = new Map(level);
 		bsp = new BSP(level);

@@ -3,8 +3,10 @@ package game;
 import dataType.Point;
 import dataType.Sector;
 import dataType.Segment;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import main.Main;
@@ -30,8 +32,49 @@ public class Map extends JPanel{
 		super.paintComponent(g);
         this.setBackground(Color.BLACK);
         
+		this.draw3DMap(g);
         this.draw2DMap(g);
-		//this.draw3DMap(g);
+	}
+
+	public void draw3DMap(Graphics g) {
+		ArrayList<Segment> toDraw = new ArrayList<>();
+		for (int i : this.bspSegmentVisible)
+			toDraw.add(this.bspMap.get(i));
+
+		toDraw.sort((s1, s2) -> {
+			double distanceA = Utility.distance(Main.player.pos(), s1.getMiddle());
+			double distanceB = Utility.distance(Main.player.pos(), s2.getMiddle());
+			return Double.compare(distanceB, distanceA);
+		});
+
+		for (Segment curr : toDraw) {
+			g.setColor(curr.getSector().getColor());
+			this.drawWall3D(g, curr);
+		}
+	}
+
+	private void drawWall3D(Graphics g, Segment s) {
+		Point playerPos = Main.player.pos();
+
+		double distanceA = Utility.distance(playerPos, s.getA());
+		double distanceB = Utility.distance(playerPos, s.getB());
+
+		int screenXA = (int) (Main.SCREEN_WIDTH / 2 + (s.getA().getX() - playerPos.getX()) / distanceA * Main.SCREEN_WIDTH);
+		int screenYA = (int) (Main.SCREEN_HEIGHT / 2 - s.getFloorHeight() / distanceA * Main.SCREEN_HEIGHT);
+		int screenYCeilingA = (int) (Main.SCREEN_HEIGHT / 2 - s.getCeilingHeight() / distanceA * Main.SCREEN_HEIGHT);
+
+		int screenXB = (int) (Main.SCREEN_WIDTH / 2 + (s.getB().getX() - playerPos.getX()) / distanceB * Main.SCREEN_WIDTH);
+		int screenYB = (int) (Main.SCREEN_HEIGHT / 2 - s.getFloorHeight() / distanceB * Main.SCREEN_HEIGHT);
+		int screenYCeilingB = (int) (Main.SCREEN_HEIGHT / 2 - s.getCeilingHeight() / distanceB * Main.SCREEN_HEIGHT);
+
+		g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{screenYA, screenYB, screenYCeilingB, screenYCeilingA}, 4);
+
+		g.setColor(Color.WHITE);
+		((Graphics2D) g).setStroke(new BasicStroke(3)); // Set the thickness of the line
+		g.drawLine(screenXA, screenYA, screenXB, screenYB); // Bottom line
+		g.drawLine(screenXA, screenYCeilingA, screenXB, screenYCeilingB); // Top line
+		g.drawLine(screenXA, screenYA, screenXA, screenYCeilingA);
+    	g.drawLine(screenXB, screenYB, screenXB, screenYCeilingB);
 	}
 
 	public void draw2DMap(Graphics g) {
@@ -57,42 +100,10 @@ public class Map extends JPanel{
 		g.drawLine(playerPos.getX(), playerPos.getY(), rightFOVEndPoint.getX(), rightFOVEndPoint.getY());
 	}
 
-	public void draw3DMap(Graphics g) {
-		for (Sector s : this.convertedMap)
-			for (Segment seg : s.getSegments())
-				this.drawWall3D(g, seg);
-	}
-
-	private void drawWall3D(Graphics g, Segment s) {
-		Point a = s.getA();
-		Point b = s.getB();
-		
-		Point screenA = Utility.project(a);
-		Point screenB = Utility.project(b);
-
-		int x1 = screenA.getX();
-		int y1 = screenA.getY();
-		int x2 = screenB.getX();
-		int y2 = screenB.getY();
-
-		int x3 = x1;
-		int y3 = Main.DISPLAY_BOTTOM_RIGHT.getY();
-		int x4 = x2;
-		int y4 = Main.DISPLAY_BOTTOM_RIGHT.getY();
-
-		g.setColor(Color.WHITE);
-		g.drawLine(x1, y1, x3, y3);
-		g.drawLine(x2, y2, x4, y4);
-
-		g.setColor(Color.GRAY);
-		g.drawLine(x3, y3, x4, y4);
-	}
-	
-
 	public void drawBspSegment2D(Graphics g) {
 		for (int i : this.bspSegmentVisible) {
-			Segment curr = this.bspMap.get(i);
-			g.setColor(Color.WHITE);
+			Segment curr = this.convertSeg(this.bspMap.get(i));
+			g.setColor(curr.getSector().getColor());
 			this.drawWall2D(g, curr);
 			
 			g.setColor(Color.ORANGE);
@@ -107,14 +118,14 @@ public class Map extends JPanel{
 	public void drawNormalBspSeg2D(Graphics g) {
 		g.setColor(Color.RED);
 		for (int i : this.bspSegmentVisible)
-			this.drawWall2D(g, this.bspMap.get(i).normal(this.bspMap.get(i).getMiddle()));
+			this.drawWall2D(g, this.convertSeg(this.bspMap.get(i)).normal(this.convertSeg(this.bspMap.get(i)).getMiddle()));
 	}
 	
 	public void updateBspSegment(ArrayList<Segment> s, ArrayList<Integer> id) {
 		this.bspMap.clear();
 		
 		for (int i = 0; i < s.size(); i++)
-			this.bspMap.add(this.convertSeg(s.get(i)));
+			this.bspMap.add(s.get(i));
 		
 		this.bspSegmentVisible = id;
 	}
@@ -134,11 +145,13 @@ public class Map extends JPanel{
 		for (int i = 0; i < sector.getNbSegment(); i++)
 			res.add(convertSeg(sector.getSegment(i)));
 		
-		return new Sector(res);
+		return new Sector(res, sector.getColor(), sector.getFloorHeight(), sector.getCeilHeight());
 	}
 	
 	private Segment convertSeg(Segment segment) {
-		return new Segment(convertPoint(segment.getA()), convertPoint(segment.getB()));
+		Segment res = new Segment(convertPoint(segment.getA()), convertPoint(segment.getB()));
+		res.setSector(segment.getSector());
+		return res;
 	}
 	
 	private Point convertPoint(Point a) {

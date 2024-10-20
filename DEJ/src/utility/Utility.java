@@ -2,27 +2,8 @@ package utility;
 
 import dataType.Point;
 import dataType.Segment;
-import main.Main;
 
 public class Utility {
-
-	public static Point project(Point a) {
-
-		int dx = a.getX() - Main.player.pos().getX();
-		int dy = a.getY() - Main.player.pos().getY();
-
-		double angle = Math.toRadians(Main.player.getYaw());
-		double cos = Math.cos(angle);
-		double sin = Math.sin(angle);
-
-		int x = (int) (dx * cos - dy * sin);
-		int y = (int) (dx * sin + dy * cos);
-
-		int screenX = Main.SCREEN_WIDTH / 2 + x * Main.SCREEN_WIDTH / (2*y);
-		int screenY = Main.SCREEN_HEIGHT / 2 - Main.SCREEN_HEIGHT / (2*y);
-
-		return new Point(screenX, screenY);
-	}
 
 	public static boolean isWithinFOV(Segment s, Point c, double fov, double yaw) {
 		Point a = s.getA();
@@ -37,6 +18,10 @@ public class Utility {
         double halfFOV = fov / 2.0;
 
         return (angleA >= -halfFOV && angleA <= halfFOV) || (angleB >= -halfFOV && angleB <= halfFOV);
+	}
+
+	public static double distance(Point a, Point b) {
+		return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
 	}
 
 	private static double normalizeAngle(double angle) {

@@ -3,6 +3,8 @@ package dataType;
 public class Segment {
 	private Point a;
 	private Point b;
+
+	private Sector s;
 	
 	public Segment (Point a, Point b) {
 		this.a = a;
@@ -12,6 +14,22 @@ public class Segment {
 	public Segment (int mvtX, int mvtY, Point a) {
 		this.a = new Point(a.getX() , a.getY());
 		this.b = new Point(a.getX() + mvtX, a.getY() + mvtY);
+	}
+
+	public int getFloorHeight() {
+		return s.getFloorHeight();
+	}
+
+	public int getCeilingHeight() {
+		return s.getCeilHeight();
+	}
+
+	public Sector getSector() {
+		return s;
+	}
+
+	public void setSector(Sector s) {
+		this.s = s;
 	}
 	
 	public void rotate(double yawDegrees) {
