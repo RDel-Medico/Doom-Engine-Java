@@ -19,6 +19,8 @@ public class Map extends JPanel{
 	
 	private ArrayList<Segment> bspMap; // Converted segments
 	private ArrayList<Integer> bspSegmentVisible;
+
+	private final int HEIGHT_SCALE = 8;
 	
 	
 	public Map (ArrayList<Sector> map) {
@@ -57,54 +59,81 @@ public class Map extends JPanel{
 		Point playerPos = Main.player.pos();
 		double playerYaw = Main.player.getYaw();
 		double playerFOV = Main.player.getFOV();
-
+	
 		// Calculate the distance from the camera to the segment endpoints
 		Point a = s.getA();
 		Point b = s.getB();
-
-		double distanceA = Utility.distance(playerPos, a);
-		double distanceB = Utility.distance(playerPos, b);
-
-		// Project the 2D points to 3D space
+	
 		double angleA = Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw;
 		double angleB = Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw;
-
+	
 		angleA = Utility.normalizeAngle(angleA);
 		angleB = Utility.normalizeAngle(angleB);
-
+	
 		double halfFOV = playerFOV / 2.0;
-
-		// Check if the segment is within the FOV
-		if ((angleA >= -halfFOV && angleA <= halfFOV) || (angleB >= -halfFOV && angleB <= halfFOV)) {
-			// Convert the 2D coordinates to 3D screen coordinates
-			int screenXA = (int) ((angleA + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
-			int screenXB = (int) ((angleB + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
-
-			// Scale the height of the wall based on the distance
-			int heightA = (int) (Main.SCREEN_HEIGHT / distanceA) * 4;
-			int heightB = (int) (Main.SCREEN_HEIGHT / distanceB) * 4;
-
-			// Determine the screen coordinates for the projected points
-			int topA = Main.SCREEN_HEIGHT / 2 - heightA / 2;
-			int bottomA = Main.SCREEN_HEIGHT / 2 + heightA / 2;
-			int topB = Main.SCREEN_HEIGHT / 2 - heightB / 2;
-			int bottomB = Main.SCREEN_HEIGHT / 2 + heightB / 2;
-
-			// Draw the wall as a polygone
-			int[] xPoints = {screenXA, screenXB, screenXB, screenXA};
-			int[] yPoints = {topA, topB, bottomB, bottomA};
-			g.fillPolygon(xPoints, yPoints, 4);
-
-			g.setColor(Color.WHITE);
-			((Graphics2D) g).setStroke(new BasicStroke(3));
-			// Draw the top and bottom of the wall
-			g.drawLine(screenXA, topA, screenXB, topB);
-			g.drawLine(screenXA, bottomA, screenXB, bottomB);
-			// Draw the left and right of the wall
-			g.drawLine(screenXA, topA, screenXA, bottomA);
-			g.drawLine(screenXB, topB, screenXB, bottomB);
-			
+	
+		// Calculate FOV boundaries
+		Point leftFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, -halfFOV);
+		Point rightFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, halfFOV);
+		Segment leftFOVBoundary = new Segment(playerPos, leftFOVEndPoint);
+		Segment rightFOVBoundary = new Segment(playerPos, rightFOVEndPoint);
+	
+		// Check if point a is within the FOV
+		if (angleA < -halfFOV || angleA > halfFOV) {
+			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+				a = Utility.intersectionPoint(s, leftFOVBoundary);
+			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+				a = Utility.intersectionPoint(s, rightFOVBoundary);
+			}
 		}
+	
+		// Check if point b is within the FOV
+		if (angleB < -halfFOV || angleB > halfFOV) {
+			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+				b = Utility.intersectionPoint(s, leftFOVBoundary);
+			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+				b = Utility.intersectionPoint(s, rightFOVBoundary);
+			}
+		}
+	
+		double distanceA = Utility.distance(playerPos, a);
+		double distanceB = Utility.distance(playerPos, b);
+	
+		// Project the 2D points to 3D space
+		angleA = Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw;
+		angleB = Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw;
+	
+		angleA = Utility.normalizeAngle(angleA);
+		angleB = Utility.normalizeAngle(angleB);
+	
+		// Convert the 2D coordinates to 3D screen coordinates
+		int screenXA = (int) ((angleA + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
+		int screenXB = (int) ((angleB + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
+	
+		// Scale the height of the wall based on the distance
+		int heightA = (int) (Main.SCREEN_HEIGHT / distanceA) * HEIGHT_SCALE;
+		int heightB = (int) (Main.SCREEN_HEIGHT / distanceB) * HEIGHT_SCALE;
+	
+		// Determine the screen coordinates for the projected points
+		int topA = Main.SCREEN_HEIGHT / 2 - heightA / 2;
+		int bottomA = Main.SCREEN_HEIGHT / 2 + heightA / 2;
+		int topB = Main.SCREEN_HEIGHT / 2 - heightB / 2;
+		int bottomB = Main.SCREEN_HEIGHT / 2 + heightB / 2;
+	
+		// Draw the wall as a polygon
+		int[] xPoints = {screenXA, screenXB, screenXB, screenXA};
+		int[] yPoints = {topA, topB, bottomB, bottomA};
+		g.fillPolygon(xPoints, yPoints, 4);
+	
+		g.setColor(Color.WHITE);
+		((Graphics2D) g).setStroke(new BasicStroke(3));
+		// Draw the top and bottom of the wall
+		g.drawLine(screenXA, topA, screenXB, topB);
+		g.drawLine(screenXA, bottomA, screenXB, bottomB);
+		// Draw the left and right of the wall
+		g.drawLine(screenXA, topA, screenXA, bottomA);
+		g.drawLine(screenXB, topB, screenXB, bottomB);
+		((Graphics2D) g).setStroke(new BasicStroke(1));
 	}
 
 	public void draw2DMap(Graphics g) {

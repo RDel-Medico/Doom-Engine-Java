@@ -5,15 +5,18 @@ public class Segment {
 	private Point b;
 
 	private Sector s;
+	private Segment originalSegment;
 	
 	public Segment (Point a, Point b) {
 		this.a = a;
 		this.b = b;
+		this.originalSegment = this;
 	}
 	
 	public Segment (double mvtX, double mvtY, Point a) {
 		this.a = new Point(a.getX() , a.getY());
 		this.b = new Point(a.getX() + mvtX, a.getY() + mvtY);
+		this.originalSegment = this;
 	}
 
 	public int getFloorHeight() {
@@ -31,6 +34,14 @@ public class Segment {
 	public void setSector(Sector s) {
 		this.s = s;
 	}
+
+	public Segment getRootSegment() {
+        Segment root = this;
+        while (root.originalSegment != root) {
+            root = root.originalSegment;
+        }
+        return root;
+    }
 	
 	public void rotate(double yawDegrees) {
         double yawRadians = Math.toRadians(yawDegrees);
@@ -113,4 +124,12 @@ public class Segment {
 	public double getMinY() {
 		return this.a.getY() < this.b.getY() ? this.a.getY() : this.b.getY();
 	}
+
+    public Segment getOriginalSegment() {
+        return originalSegment;
+    }
+
+    public void setOriginalSegment(Segment originalSegment) {
+        this.originalSegment = originalSegment;
+    }
 }

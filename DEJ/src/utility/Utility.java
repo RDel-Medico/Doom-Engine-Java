@@ -74,6 +74,20 @@ public class Utility {
 		return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
 	}
 
+	public static double distanceToSegment(Point p, Segment s) {
+        double x0 = p.getX();
+        double y0 = p.getY();
+        double x1 = s.getA().getX();
+        double y1 = s.getA().getY();
+        double x2 = s.getB().getX();
+        double y2 = s.getB().getY();
+
+        double numerator = Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1);
+        double denominator = Math.sqrt(Math.pow(y2 - y1, 2) + Math.pow(x2 - x1, 2));
+
+        return numerator / denominator;
+    }
+
 	public static double normalizeAngle(double angle) {
 		angle = angle % 360;
 		if (angle > 180) {

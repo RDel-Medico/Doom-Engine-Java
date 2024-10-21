@@ -8,7 +8,6 @@ import utility.Utility;
 
 public class BSP {
 	private BSPNode root;
-	
 	private ArrayList<Segment> map;
 	private ArrayList<Segment> bspMap;
 	
@@ -71,6 +70,7 @@ public class BSP {
 					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)));
 				}
 				temp.setSector(s.get(i).getSector());
+				temp.setOriginalSegment(s.get(i).getRootSegment());
 				res.add(temp);
 				continue;
 			}
@@ -94,6 +94,7 @@ public class BSP {
 					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB());
 				}
 				temp.setSector(s.get(i).getSector());
+				temp.setOriginalSegment(s.get(i).getRootSegment());
 				res.add(temp);
 				continue;
 			}
