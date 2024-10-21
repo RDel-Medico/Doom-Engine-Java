@@ -55,26 +55,56 @@ public class Map extends JPanel{
 
 	private void drawWall3D(Graphics g, Segment s) {
 		Point playerPos = Main.player.pos();
+		double playerYaw = Main.player.getYaw();
+		double playerFOV = Main.player.getFOV();
 
-		double distanceA = Utility.distance(playerPos, s.getA());
-		double distanceB = Utility.distance(playerPos, s.getB());
+		// Calculate the distance from the camera to the segment endpoints
+		Point a = s.getA();
+		Point b = s.getB();
 
-		int screenXA = (int) (Main.SCREEN_WIDTH / 2 + (s.getA().getX() - playerPos.getX()) / distanceA * Main.SCREEN_WIDTH);
-		int screenYA = (int) (Main.SCREEN_HEIGHT / 2 - s.getFloorHeight() / distanceA * Main.SCREEN_HEIGHT);
-		int screenYCeilingA = (int) (Main.SCREEN_HEIGHT / 2 - s.getCeilingHeight() / distanceA * Main.SCREEN_HEIGHT);
+		double distanceA = Utility.distance(playerPos, a);
+		double distanceB = Utility.distance(playerPos, b);
 
-		int screenXB = (int) (Main.SCREEN_WIDTH / 2 + (s.getB().getX() - playerPos.getX()) / distanceB * Main.SCREEN_WIDTH);
-		int screenYB = (int) (Main.SCREEN_HEIGHT / 2 - s.getFloorHeight() / distanceB * Main.SCREEN_HEIGHT);
-		int screenYCeilingB = (int) (Main.SCREEN_HEIGHT / 2 - s.getCeilingHeight() / distanceB * Main.SCREEN_HEIGHT);
+		// Project the 2D points to 3D space
+		double angleA = Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw;
+		double angleB = Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw;
 
-		g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{screenYA, screenYB, screenYCeilingB, screenYCeilingA}, 4);
+		angleA = Utility.normalizeAngle(angleA);
+		angleB = Utility.normalizeAngle(angleB);
 
-		g.setColor(Color.WHITE);
-		((Graphics2D) g).setStroke(new BasicStroke(3)); // Set the thickness of the line
-		g.drawLine(screenXA, screenYA, screenXB, screenYB); // Bottom line
-		g.drawLine(screenXA, screenYCeilingA, screenXB, screenYCeilingB); // Top line
-		g.drawLine(screenXA, screenYA, screenXA, screenYCeilingA);
-    	g.drawLine(screenXB, screenYB, screenXB, screenYCeilingB);
+		double halfFOV = playerFOV / 2.0;
+
+		// Check if the segment is within the FOV
+		if ((angleA >= -halfFOV && angleA <= halfFOV) || (angleB >= -halfFOV && angleB <= halfFOV)) {
+			// Convert the 2D coordinates to 3D screen coordinates
+			int screenXA = (int) ((angleA + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
+			int screenXB = (int) ((angleB + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
+
+			// Scale the height of the wall based on the distance
+			int heightA = (int) (Main.SCREEN_HEIGHT / distanceA) * 4;
+			int heightB = (int) (Main.SCREEN_HEIGHT / distanceB) * 4;
+
+			// Determine the screen coordinates for the projected points
+			int topA = Main.SCREEN_HEIGHT / 2 - heightA / 2;
+			int bottomA = Main.SCREEN_HEIGHT / 2 + heightA / 2;
+			int topB = Main.SCREEN_HEIGHT / 2 - heightB / 2;
+			int bottomB = Main.SCREEN_HEIGHT / 2 + heightB / 2;
+
+			// Draw the wall as a polygone
+			int[] xPoints = {screenXA, screenXB, screenXB, screenXA};
+			int[] yPoints = {topA, topB, bottomB, bottomA};
+			g.fillPolygon(xPoints, yPoints, 4);
+
+			g.setColor(Color.WHITE);
+			((Graphics2D) g).setStroke(new BasicStroke(3));
+			// Draw the top and bottom of the wall
+			g.drawLine(screenXA, topA, screenXB, topB);
+			g.drawLine(screenXA, bottomA, screenXB, bottomB);
+			// Draw the left and right of the wall
+			g.drawLine(screenXA, topA, screenXA, bottomA);
+			g.drawLine(screenXB, topB, screenXB, bottomB);
+			
+		}
 	}
 
 	public void draw2DMap(Graphics g) {

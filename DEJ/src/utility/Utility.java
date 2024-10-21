@@ -6,25 +6,69 @@ import dataType.Segment;
 public class Utility {
 
 	public static boolean isWithinFOV(Segment s, Point c, double fov, double yaw) {
-		Point a = s.getA();
+        Point a = s.getA();
         Point b = s.getB();
 
         double angleA = Math.toDegrees(Math.atan2(a.getY() - c.getY(), a.getX() - c.getX())) - yaw;
         double angleB = Math.toDegrees(Math.atan2(b.getY() - c.getY(), b.getX() - c.getX())) - yaw;
 
         angleA = normalizeAngle(angleA);
-		angleB = normalizeAngle(angleB);
+        angleB = normalizeAngle(angleB);
 
         double halfFOV = fov / 2.0;
 
-        return (angleA >= -halfFOV && angleA <= halfFOV) || (angleB >= -halfFOV && angleB <= halfFOV);
+        // Check if either endpoint is within the FOV
+        if ((angleA >= -halfFOV && angleA <= halfFOV) || (angleB >= -halfFOV && angleB <= halfFOV)) {
+            return true;
+        }
+
+        // Check if the segment intersects the FOV boundaries
+        Point leftFOVEndPoint = calculateFOVEndPoint(c, yaw, -halfFOV);
+        Point rightFOVEndPoint = calculateFOVEndPoint(c, yaw, halfFOV);
+
+        Segment leftFOVBoundary = new Segment(c, leftFOVEndPoint);
+        Segment rightFOVBoundary = new Segment(c, rightFOVEndPoint);
+
+        return boundedIntersection(s, leftFOVBoundary) || boundedIntersection(s, rightFOVBoundary);
+    }
+
+	public static boolean boundedIntersection(Segment s1, Segment s2) {
+		Point p1 = s1.getA();
+        Point q1 = s1.getB();
+        Point p2 = s2.getA();
+        Point q2 = s2.getB();
+
+        // Find the four orientations needed for the general and special cases
+        int o1 = orientation(p1, q1, p2);
+        int o2 = orientation(p1, q1, q2);
+        int o3 = orientation(p2, q2, p1);
+        int o4 = orientation(p2, q2, q1);
+
+        // General case
+        if (o1 != o2 && o3 != o4) {
+            return true;
+        }
+
+        // Special cases
+        return (o4 == 0 && onSegment(p2, q1, q2)) || (o3 == 0 && onSegment(p2, p1, q2)) || (o1 == 0 && onSegment(p1, p2, q1)) || (o2 == 0 && onSegment(p1, q2, q1));
 	}
+
+	private static int orientation(Point p, Point q, Point r) {
+        int val = (q.getY() - p.getY()) * (r.getX() - q.getX()) - (q.getX() - p.getX()) * (r.getY() - q.getY());
+        if (val == 0) return 0; // collinear
+        return (val > 0) ? 1 : 2; // clock or counterclock wise
+    }
+
+    private static boolean onSegment(Point p, Point q, Point r) {
+        return q.getX() <= Math.max(p.getX(), r.getX()) && q.getX() >= Math.min(p.getX(), r.getX()) &&
+               q.getY() <= Math.max(p.getY(), r.getY()) && q.getY() >= Math.min(p.getY(), r.getY());
+    }
 
 	public static double distance(Point a, Point b) {
 		return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
 	}
 
-	private static double normalizeAngle(double angle) {
+	public static double normalizeAngle(double angle) {
 		angle = angle % 360;
 		if (angle > 180) {
 			angle -= 360;
@@ -35,7 +79,7 @@ public class Utility {
 	}
 
 	public static Point calculateFOVEndPoint (Point a, double yaw, double fov) {
-		double angle = Math.toRadians(yaw + fov / 2.0);
+		double angle = Math.toRadians(yaw + fov);
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 
