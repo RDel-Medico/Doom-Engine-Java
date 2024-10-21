@@ -191,8 +191,18 @@ public class Map extends JPanel{
 	
 	public void drawCam2D(Graphics g) {
 		g.setColor(Color.GREEN);
-		g.fillOval(convertPoint(Camera.getSelf().pos()).getX()-5, convertPoint(Camera.getSelf().pos()).getY()-5, 10, 10);
-		this.drawWall2D(g, convertSeg(Camera.getSelf().getRotatedVision()));
+		Point camPos = convertPoint(Camera.getSelf().pos());
+		g.fillOval(camPos.getX() - 5, camPos.getY() - 5, 10, 10);
+
+		// Calculate the endpoint of the direction line
+		double yaw = Camera.getSelf().getYaw();
+		int length = 20; // Length of the direction line
+		int endX = (int) (camPos.getX() + length * Math.cos(Math.toRadians(yaw)));
+		int endY = (int) (camPos.getY() + length * Math.sin(Math.toRadians(yaw)));
+
+		// Draw the direction line
+		g.setColor(Color.RED);
+		g.drawLine(camPos.getX(), camPos.getY(), endX, endY);
 	}
 	
 	public void drawNormal(Graphics g) {

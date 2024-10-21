@@ -11,7 +11,10 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.JFrame;
+import javax.swing.Timer;
 import player.Camera;
 
 public class Main implements KeyListener {
@@ -25,6 +28,9 @@ public class Main implements KeyListener {
 	public static Map map;
 	public static BSPTraversal bspT;
 	public static BSP bsp;
+
+        @SuppressWarnings("FieldMayBeFinal")
+	private static Set<Integer> pressedKeys = new HashSet<>();
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("Doom Engine");
@@ -87,23 +93,33 @@ public class Main implements KeyListener {
 		
 		bspT.update();
 		map.updateBspSegment(bsp.getSegments(), bspT.getId());
+
+		Timer timer = new Timer(16, event -> update());
+		timer.start();
+	}
+
+	private static void update() {
+		if (pressedKeys.contains(KeyEvent.VK_UP)) {
+			player.moveForward();
+		}
+		if (pressedKeys.contains(KeyEvent.VK_DOWN)) {
+			player.moveBackward();
+		}
+		if (pressedKeys.contains(KeyEvent.VK_LEFT) || pressedKeys.contains(KeyEvent.VK_Q)) {
+			player.turnLeft();
+		}
+		if (pressedKeys.contains(KeyEvent.VK_RIGHT) || pressedKeys.contains(KeyEvent.VK_D)) {
+			player.turnRight();
+		}
+
+		bspT.update();
+		map.updateBspSegment(bsp.getSegments(), bspT.getId());
+		map.repaint();
 	}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-		switch (keyCode) {
-			case KeyEvent.VK_UP -> player.moveForward();
-			case KeyEvent.VK_DOWN -> player.moveBackward();
-			case KeyEvent.VK_LEFT -> player.turnLeft();
-			case KeyEvent.VK_RIGHT -> player.turnRight();
-			case KeyEvent.VK_Q -> player.rotate(-10);
-			case KeyEvent.VK_D -> player.rotate(10);
-		}
-
-        bspT.update();
-        map.updateBspSegment(bsp.getSegments(), bspT.getId());
-        map.repaint();
+		pressedKeys.add(e.getKeyCode());
     }
 
 	@Override
@@ -114,6 +130,6 @@ public class Main implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
+		pressedKeys.remove(e.getKeyCode());
 	}
 }
