@@ -11,7 +11,7 @@ public class Segment {
 		this.b = b;
 	}
 	
-	public Segment (int mvtX, int mvtY, Point a) {
+	public Segment (double mvtX, double mvtY, Point a) {
 		this.a = new Point(a.getX() , a.getY());
 		this.b = new Point(a.getX() + mvtX, a.getY() + mvtY);
 	}
@@ -35,8 +35,8 @@ public class Segment {
 	public void rotate(double yawDegrees) {
         double yawRadians = Math.toRadians(yawDegrees);
 
-        int mvtX = getXMouvement();
-        int mvtY = getYMouvement();
+        double mvtX = getXMouvement();
+        double mvtY = getYMouvement();
 
         double cosTheta = Math.cos(yawRadians);
         double sinTheta = Math.sin(yawRadians);
@@ -48,8 +48,8 @@ public class Segment {
     }
 	
 	public Point getMiddle() {
-		int middleSegX = Math.min(this.a.getX(), this.b.getX()) + Math.abs((this.a.getX() - this.b.getX())) / 2;
-		int middleSegY = Math.min(this.a.getY(), this.b.getY()) + Math.abs((this.a.getY() - this.b.getY())) / 2;
+		double middleSegX = Math.min(this.a.getX(), this.b.getX()) + Math.abs((this.a.getX() - this.b.getX())) / 2;
+		double middleSegY = Math.min(this.a.getY(), this.b.getY()) + Math.abs((this.a.getY() - this.b.getY())) / 2;
 		
 		return new Point(middleSegX, middleSegY);
 	}
@@ -74,11 +74,11 @@ public class Segment {
 		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a);
 	}
 	
-	public int getXMouvement() {
+	public double getXMouvement() {
 		return this.b.getX() - this.a.getX();
 	}
 	
-	public int getYMouvement() {
+	public double getYMouvement() {
 		return this.b.getY() - this.a.getY();
 	}
 
@@ -98,19 +98,19 @@ public class Segment {
 		this.b.moveRight();
 	}
 	
-	public int getMaxX() {
+	public double getMaxX() {
 		return this.a.getX() > this.b.getX() ? this.a.getX() : this.b.getX();
 	}
 	
-	public int getMinX() {
+	public double getMinX() {
 		return this.a.getX() < this.b.getX() ? this.a.getX() : this.b.getX();
 	}
 	
-	public int getMaxY() {
+	public double getMaxY() {
 		return this.a.getY() > this.b.getY() ? this.a.getY() : this.b.getY();
 	}
 	
-	public int getMinY() {
+	public double getMinY() {
 		return this.a.getY() < this.b.getY() ? this.a.getY() : this.b.getY();
 	}
 }

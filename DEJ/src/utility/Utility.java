@@ -5,6 +5,12 @@ import dataType.Segment;
 
 public class Utility {
 
+	private static final double TRESHOLD = 0.0001;
+
+	public static boolean isZero(double value){
+		return value >= -TRESHOLD && value <= TRESHOLD;
+	}
+
 	public static boolean isWithinFOV(Segment s, Point c, double fov, double yaw) {
         Point a = s.getA();
         Point b = s.getB();
@@ -54,8 +60,8 @@ public class Utility {
 	}
 
 	private static int orientation(Point p, Point q, Point r) {
-        int val = (q.getY() - p.getY()) * (r.getX() - q.getX()) - (q.getX() - p.getX()) * (r.getY() - q.getY());
-        if (val == 0) return 0; // collinear
+        double val = (q.getY() - p.getY()) * (r.getX() - q.getX()) - (q.getX() - p.getX()) * (r.getY() - q.getY());
+        if (isZero(val)) return 0; // collinear
         return (val > 0) ? 1 : 2; // clock or counterclock wise
     }
 
@@ -83,25 +89,25 @@ public class Utility {
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 
-		int x = (int) (a.getX() + 1000 * cos);
-		int y = (int) (a.getY() + 1000 * sin);
+		double x = a.getX() + 1000 * cos;
+		double y = a.getY() + 1000 * sin;
 
 		return new Point(x, y);
 	}
 
 	public static boolean isCollinear(Segment s, Point c) {
-		return 0 == crossProduct2D(s, new Segment(s.getA(), c));
+		return isZero(crossProduct2D(s, new Segment(s.getA(), c)));
 	}
 
 	public static boolean isInFront(Segment s, Point c, double yaw) {
 		return crossProduct2D(s, new Segment(s.getA(), c)) < 0;
 	}
 
-	public static int crossProduct2D (Segment ab, Segment cd) {
-		int x1 = ab.getB().getX() - ab.getA().getX();
-        int y1 = ab.getB().getY() - ab.getA().getY();
-        int x2 = cd.getB().getX() - cd.getA().getX();
-        int y2 = cd.getB().getY() - cd.getA().getY();
+	public static double crossProduct2D (Segment ab, Segment cd) {
+		double x1 = ab.getB().getX() - ab.getA().getX();
+        double y1 = ab.getB().getY() - ab.getA().getY();
+        double x2 = cd.getB().getX() - cd.getA().getX();
+        double y2 = cd.getB().getY() - cd.getA().getY();
         return x1 * y2 - y1 * x2;
 	}
 	
@@ -114,14 +120,14 @@ public class Utility {
 	}
 	
 	public static boolean isParallel (Segment s1, Segment s2) {
-		return 0 == crossProduct2D(s1, s2);
+		return isZero(crossProduct2D(s1, s2));
 	}
 	
 	public static boolean isCollinear (Segment s1, Segment s2) {
-		int num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
-		int den = crossProduct2D(s1, s2);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double den = crossProduct2D(s1, s2);
 		
-		return num == 0 && den == 0;
+		return isZero(num) && isZero(den);
 	}
 	
 	public static boolean intersection(Segment s1, Segment s2) {
@@ -138,8 +144,8 @@ public class Utility {
 		double den = crossProduct2D(s1, s2);
 		
 		double t = num / den;
-		int collisionX = s2.getA().getX() + (int)(t * (double)s2.getXMouvement());
-		int collisionY = s2.getA().getY() + (int)(t * (double)s2.getYMouvement());
+		double collisionX = s2.getA().getX() + (int)(t * (double)s2.getXMouvement());
+		double collisionY = s2.getA().getY() + (int)(t * (double)s2.getYMouvement());
 		
 		return new Point(collisionX, collisionY);
 	}
@@ -148,13 +154,13 @@ public class Utility {
 		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
 		double den = crossProduct2D(s1, s2);
 		
-		return num < 0 || (Math.round(num) == 0 && den > 0);
+		return num < 0 || (isZero(num) && den > 0);
 	}
 	
 	public static boolean collisionOnBack(Segment s1, Segment s2) {
 		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
 		double den = crossProduct2D(s1, s2);
 		
-		return num > 0 || (Math.round(num) == 0 && den < 0);
+		return num > 0 || (isZero(num) && den < 0);
 	}
 }

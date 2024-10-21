@@ -126,8 +126,8 @@ public class Map extends JPanel{
 		playerPos = convertPoint(playerPos);
 
 		g.setColor(Color.RED);
-		g.drawLine(playerPos.getX(), playerPos.getY(), leftFOVEndPoint.getX(), leftFOVEndPoint.getY());
-		g.drawLine(playerPos.getX(), playerPos.getY(), rightFOVEndPoint.getX(), rightFOVEndPoint.getY());
+		g.drawLine((int) playerPos.getX(), (int) playerPos.getY(), (int) leftFOVEndPoint.getX(), (int) leftFOVEndPoint.getY());
+		g.drawLine((int) playerPos.getX(), (int) playerPos.getY(), (int) rightFOVEndPoint.getX(), (int) rightFOVEndPoint.getY());
 	}
 
 	public void drawBspSegment2D(Graphics g) {
@@ -137,11 +137,11 @@ public class Map extends JPanel{
 			this.drawWall2D(g, curr);
 			
 			g.setColor(Color.ORANGE);
-			g.fillOval(curr.getA().getX()-3, curr.getA().getY()-3, 6, 6);
-			g.fillOval(curr.getB().getX()-3, curr.getB().getY()-3, 6, 6);
+			g.fillOval((int) curr.getA().getX()-3, (int) curr.getA().getY()-3, 6, 6);
+			g.fillOval((int) curr.getB().getX()-3, (int) curr.getB().getY()-3, 6, 6);
 			
 			Point middle = curr.getMiddle();
-			g.drawString(Integer.toString(i), middle.getX(), middle.getY());
+			g.drawString(Integer.toString(i), (int) middle.getX(), (int) middle.getY());
 		}
 	}
 	
@@ -192,7 +192,7 @@ public class Map extends JPanel{
 	public void drawCam2D(Graphics g) {
 		g.setColor(Color.GREEN);
 		Point camPos = convertPoint(Camera.getSelf().pos());
-		g.fillOval(camPos.getX() - 5, camPos.getY() - 5, 10, 10);
+		g.fillOval((int) camPos.getX() - 5, (int) camPos.getY() - 5, 10, 10);
 
 		// Calculate the endpoint of the direction line
 		double yaw = Camera.getSelf().getYaw();
@@ -202,7 +202,7 @@ public class Map extends JPanel{
 
 		// Draw the direction line
 		g.setColor(Color.RED);
-		g.drawLine(camPos.getX(), camPos.getY(), endX, endY);
+		g.drawLine((int) camPos.getX(), (int) camPos.getY(), endX, endY);
 	}
 	
 	public void drawNormal(Graphics g) {
@@ -224,11 +224,11 @@ public class Map extends JPanel{
 	}
 
 	private void drawWall2D(Graphics g, Segment s) {
-		g.drawLine(s.getA().getX(), s.getA().getY(), s.getB().getX(), s.getB().getY());
+		g.drawLine((int) s.getA().getX(), (int) s.getA().getY(), (int) s.getB().getX(), (int) s.getB().getY());
 	}
 
-	public int getMinX() {
-		int min = Integer.MAX_VALUE;
+	public double getMinX() {
+		double min = Integer.MAX_VALUE;
 		
 		for (Sector s : this.map)
 			min = Math.min(min, s.getMinX());
@@ -236,8 +236,8 @@ public class Map extends JPanel{
 		return min;
 	}
 	
-	public int getMaxX() {
-		int max = Integer.MIN_VALUE;
+	public double getMaxX() {
+		double max = Integer.MIN_VALUE;
 		
 		for (Sector s : this.map)
 			max = Math.max(max, s.getMaxX());
@@ -245,8 +245,8 @@ public class Map extends JPanel{
 		return max;
 	}
 	
-	public int getMinY() {
-		int min = Integer.MAX_VALUE;
+	public double getMinY() {
+		double min = Integer.MAX_VALUE;
 		
 		for (Sector s : this.map)
 			min = Math.min(min, s.getMinY());
@@ -254,8 +254,8 @@ public class Map extends JPanel{
 		return min;
 	}
 	
-	public int getMaxY() {
-		int max = Integer.MIN_VALUE;
+	public double getMaxY() {
+		double max = Integer.MIN_VALUE;
 		
 		for (Sector s : this.map)
 			max = Math.max(max, s.getMaxY());

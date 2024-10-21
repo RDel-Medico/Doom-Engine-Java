@@ -43,8 +43,8 @@ public class Sector {
 		this.setSector();
 	}
 	
-	public int getMaxX () {
-		int currMax = Integer.MIN_VALUE;
+	public double getMaxX () {
+		double currMax = Integer.MIN_VALUE;
 		
 		for (Segment s : this.shape)
 			currMax = Math.max(s.getMaxX(), currMax);
@@ -52,8 +52,8 @@ public class Sector {
 		return currMax;
 	}
 	
-	public int getMaxY () {
-		int currMax = Integer.MIN_VALUE;
+	public double getMaxY () {
+		double currMax = Integer.MIN_VALUE;
 		
 		for (Segment s : this.shape)
 			currMax = Math.max(s.getMaxY(), currMax);
@@ -61,8 +61,8 @@ public class Sector {
 		return currMax;
 	}
 	
-	public int getMinX () {
-		int currMin = Integer.MAX_VALUE;
+	public double getMinX () {
+		double currMin = Integer.MAX_VALUE;
 		
 		for (Segment s : this.shape)
 			currMin = Math.min(s.getMinX(), currMin);
@@ -70,8 +70,8 @@ public class Sector {
 		return currMin;
 	}
 	
-	public int getMinY () {
-		int currMin = Integer.MAX_VALUE;
+	public double getMinY () {
+		double currMin = Integer.MAX_VALUE;
 		
 		for (Segment s : this.shape)
 			currMin = Math.min(s.getMinY(), currMin);
