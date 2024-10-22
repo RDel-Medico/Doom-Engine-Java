@@ -82,20 +82,27 @@ public class Map extends JPanel{
 		if (angleA < -halfFOV || angleA > halfFOV) {
 			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
 				a = Utility.intersectionPoint(s, leftFOVBoundary);
+				if (angleB < -halfFOV || angleB > halfFOV) {
+					if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+						b = Utility.intersectionPoint(s, rightFOVBoundary);
+					}
+				}
 			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
 				a = Utility.intersectionPoint(s, rightFOVBoundary);
+				if (angleB < -halfFOV || angleB > halfFOV) {
+					if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+						b = Utility.intersectionPoint(s, leftFOVBoundary);
+					}
+				}
+			} else if (angleB < -halfFOV || angleB > halfFOV) {
+				if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+					a = Utility.intersectionPoint(s, leftFOVBoundary);
+				} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+					a = Utility.intersectionPoint(s, rightFOVBoundary);
+				}
 			}
 		}
-	
-		// Check if point b is within the FOV
-		if (angleB < -halfFOV || angleB > halfFOV) {
-			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
-				b = Utility.intersectionPoint(s, leftFOVBoundary);
-			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
-				b = Utility.intersectionPoint(s, rightFOVBoundary);
-			}
-		}
-	
+		
 		double distanceA = Utility.distance(playerPos, a);
 		double distanceB = Utility.distance(playerPos, b);
 	
