@@ -1,7 +1,9 @@
 package utility;
 
 import dataType.Point;
+import dataType.Sector;
 import dataType.Segment;
+import java.util.ArrayList;
 
 public class Utility {
 
@@ -32,8 +34,8 @@ public class Utility {
         Point leftFOVEndPoint = calculateFOVEndPoint(c, yaw, -halfFOV);
         Point rightFOVEndPoint = calculateFOVEndPoint(c, yaw, halfFOV);
 
-        Segment leftFOVBoundary = new Segment(c, leftFOVEndPoint);
-        Segment rightFOVBoundary = new Segment(c, rightFOVEndPoint);
+        Segment leftFOVBoundary = new Segment(c, leftFOVEndPoint, null, null, null);
+        Segment rightFOVBoundary = new Segment(c, rightFOVEndPoint, null, null, null);
 
         return boundedIntersection(s, leftFOVBoundary) || boundedIntersection(s, rightFOVBoundary);
     }
@@ -110,11 +112,11 @@ public class Utility {
 	}
 
 	public static boolean isCollinear(Segment s, Point c) {
-		return isZero(crossProduct2D(s, new Segment(s.getA(), c)));
+		return isZero(crossProduct2D(s, new Segment(s.getA(), c, null, null, null)));
 	}
 
 	public static boolean isInFront(Segment s, Point c, double yaw) {
-		return crossProduct2D(s, new Segment(s.getA(), c)) < 0;
+		return crossProduct2D(s, new Segment(s.getA(), c, null, null, null)) < 0;
 	}
 
 	public static double crossProduct2D (Segment ab, Segment cd) {
@@ -126,7 +128,7 @@ public class Utility {
 	}
 	
 	public static boolean isInFront(Segment s, Point c) {
-		return crossProduct2D(s, new Segment(s.getA(), c)) < 0;
+		return crossProduct2D(s, new Segment(s.getA(), c, null, null, null)) < 0;
 	}
 	
 	public static boolean isInFront(Segment s1, Segment s2) {
@@ -138,14 +140,14 @@ public class Utility {
 	}
 	
 	public static boolean isCollinear (Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		return isZero(num) && isZero(den);
 	}
 	
 	public static boolean intersection(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
 		double den = crossProduct2D(s1, s2);
 		if (0.0 < num / den && num / den < 1.0) {
 			return true;
@@ -154,7 +156,7 @@ public class Utility {
 	}
 	
 	public static Point intersectionPoint(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		double t = num / den;
@@ -165,16 +167,73 @@ public class Utility {
 	}
 	
 	public static boolean collisionOnFront(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		return num < 0 || (isZero(num) && den > 0);
 	}
 	
 	public static boolean collisionOnBack(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA()), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		return num > 0 || (isZero(num) && den < 0);
 	}
+
+	public static boolean isPointInSector(Point p, Sector sector) {
+        int intersectionCount = 0;
+        ArrayList<Segment> segments = sector.getSegments();
+
+        for (Segment segment : segments) {
+            Point a = segment.getA();
+            Point b = segment.getB();
+
+            // Check if the point is exactly on a vertex
+            if (p.equals(a) || p.equals(b)) {
+                return true;
+            }
+
+            // Check if the ray intersects the segment
+            if (doesRayIntersectSegment(p, a, b)) {
+                intersectionCount++;
+            }
+        }
+
+        // Point is inside the sector if the intersection count is odd
+        return (intersectionCount % 2) == 1;
+    }
+
+	private static boolean doesRayIntersectSegment(Point p, Point a, Point b) {
+        // Ensure a is the lower point
+        if (a.getY() > b.getY()) {
+            Point temp = a;
+            a = b;
+            b = temp;
+        }
+
+        // Check if the point is outside the vertical bounds of the segment
+        if (p.getY() == a.getY() || p.getY() == b.getY()) {
+            p = new Point(p.getX(), p.getY() + TRESHOLD);
+        }
+
+        if (p.getY() < a.getY() || p.getY() > b.getY()) {
+            return false;
+        }
+
+        // Check if the point is to the right of the segment
+        if (p.getX() >= Math.max(a.getX(), b.getX())) {
+            return false;
+        }
+
+        // Check if the point is to the left of the segment
+        if (p.getX() < Math.min(a.getX(), b.getX())) {
+            return true;
+        }
+
+        // Calculate the intersection point
+        double red = (p.getY() - a.getY()) / (b.getY() - a.getY());
+        double intersectionX = a.getX() + red * (b.getX() - a.getX());
+
+        return p.getX() < intersectionX;
+    }
 }

@@ -55,10 +55,10 @@ public class Main implements KeyListener {
 		Point d = new Point(50, 0);
 		
 		ArrayList<Segment> seg = new ArrayList<>();
-		seg.add(new Segment(b, a));
-		seg.add(new Segment(c, b));
-		seg.add(new Segment(d, c));
-		seg.add(new Segment(a, d));
+		seg.add(new Segment(b, a, Color.RED, Color.PINK, Color.WHITE));
+		seg.add(new Segment(c, b, Color.RED, Color.PINK, Color.WHITE));
+		seg.add(new Segment(d, c, Color.RED, Color.PINK, Color.WHITE));
+		seg.add(new Segment(a, d, Color.RED, Color.PINK, Color.WHITE));
 		
 		Point e = new Point(10, 20);
 		Point f = new Point(30, 20);
@@ -66,24 +66,24 @@ public class Main implements KeyListener {
 		Point h = new Point(10, 40);
 		
 		ArrayList<Segment> obstacle = new ArrayList<>();
-		obstacle.add(new Segment(f, e));
-		obstacle.add(new Segment(g, f));
-		obstacle.add(new Segment(h, g));
-		obstacle.add(new Segment(e, h));
+		obstacle.add(new Segment(f, e, Color.GREEN, Color.PINK, Color.WHITE));
+		obstacle.add(new Segment(g, f, Color.GREEN, Color.PINK, Color.WHITE));
+		obstacle.add(new Segment(h, g, Color.GREEN, Color.PINK, Color.WHITE));
+		obstacle.add(new Segment(e, h, Color.GREEN, Color.PINK, Color.WHITE));
 		
 		Point i = new Point(30, 10);
 		Point j = new Point(40, 20);
 		Point k = new Point(40, 10);
 		
 		ArrayList<Segment> triangle = new ArrayList<>();
-		triangle.add(new Segment(i, j));
-		triangle.add(new Segment(j, k));
-		triangle.add(new Segment(k, i));
+		triangle.add(new Segment(i, j, null, Color.PINK, Color.WHITE));
+		triangle.add(new Segment(j, k, null, Color.PINK, Color.WHITE));
+		triangle.add(new Segment(k, i, null, Color.PINK, Color.WHITE));
 		
 		ArrayList<Sector> level = new ArrayList<>();
-		level.add(new Sector(triangle, Color.RED, -5, 5));
-		level.add(new Sector(obstacle, Color.BLUE, -5, 5));
-		level.add(new Sector(seg, Color.GREEN, -5, 5));
+		level.add(new Sector(triangle, 10, 80, Color.MAGENTA, Color.MAGENTA, false));
+		level.add(new Sector(obstacle, 10, 80, Color.YELLOW, Color.YELLOW, false));
+		level.add(new Sector(seg, 10, 80, Color.ORANGE, Color.ORANGE, true));
 		
 		map = new Map(level);
 		bsp = new BSP(level);
@@ -99,10 +99,10 @@ public class Main implements KeyListener {
 	}
 
 	private static void update() {
-		if (pressedKeys.contains(KeyEvent.VK_UP)) {
+		if (pressedKeys.contains(KeyEvent.VK_UP) || pressedKeys.contains(KeyEvent.VK_Z)) {
 			player.moveForward();
 		}
-		if (pressedKeys.contains(KeyEvent.VK_DOWN)) {
+		if (pressedKeys.contains(KeyEvent.VK_DOWN) || pressedKeys.contains(KeyEvent.VK_S)) {
 			player.moveBackward();
 		}
 		if (pressedKeys.contains(KeyEvent.VK_LEFT) || pressedKeys.contains(KeyEvent.VK_Q)) {
@@ -111,6 +111,8 @@ public class Main implements KeyListener {
 		if (pressedKeys.contains(KeyEvent.VK_RIGHT) || pressedKeys.contains(KeyEvent.VK_D)) {
 			player.turnRight();
 		}
+
+
 
 		bspT.update();
 		map.updateBspSegment(bsp.getSegments(), bspT.getId());

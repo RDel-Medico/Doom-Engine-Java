@@ -6,18 +6,23 @@ import java.util.ArrayList;
 public class Sector {
 	private ArrayList<Segment> shape;
 
-	private Color color;
-
 	private int floorHeight;
 	private int ceilHeight;
+
+	private Color floorColor;
+	private Color ceilColor;
+
+	private boolean isReversed;
 	
         @SuppressWarnings("OverridableMethodCallInConstructor")
-	public Sector(ArrayList<Segment> seg, Color color, int floorHeight, int ceilHeight) {
+	public Sector(ArrayList<Segment> seg, int floorHeight, int ceilHeight, Color floorColor, Color ceilColor, boolean isReversed) {
 		this.shape = seg;
-		this.color = color;
 		this.floorHeight = floorHeight;
 		this.ceilHeight = ceilHeight;
 		this.setSector();
+		this.floorColor = floorColor;
+		this.ceilColor = ceilColor;
+		this.isReversed = isReversed;
 	}
 
 	public void setSector() {
@@ -79,14 +84,6 @@ public class Sector {
 		return currMin;
 	}
 
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
     public int getFloorHeight() {
         return floorHeight;
     }
@@ -101,5 +98,29 @@ public class Sector {
 
     public void setCeilHeight(int ceilHeight) {
         this.ceilHeight = ceilHeight;
+    }
+
+    public Color getFloorColor() {
+        return floorColor;
+    }
+
+    public void setFloorColor(Color floorColor) {
+        this.floorColor = floorColor;
+    }
+
+    public Color getCeilColor() {
+        return ceilColor;
+    }
+
+    public void setCeilColor(Color ceilColor) {
+        this.ceilColor = ceilColor;
+    }
+
+    public boolean isIsReversed() {
+        return isReversed;
+    }
+
+    public void setIsReversed(boolean isReversed) {
+        this.isReversed = isReversed;
     }
 }

@@ -1,22 +1,34 @@
 package dataType;
 
+import java.awt.Color;
+
 public class Segment {
 	private Point a;
 	private Point b;
 
 	private Sector s;
 	private Segment originalSegment;
+
+	private Color middle;
+	private Color top;
+	private Color bottom;
 	
-	public Segment (Point a, Point b) {
+	public Segment (Point a, Point b, Color middle, Color top, Color bottom) {
 		this.a = a;
 		this.b = b;
 		this.originalSegment = this;
+		this.middle = middle;
+		this.top = top;
+		this.bottom = bottom;
 	}
 	
-	public Segment (double mvtX, double mvtY, Point a) {
+	public Segment (double mvtX, double mvtY, Point a, Color middle, Color top, Color bottom) {
 		this.a = new Point(a.getX() , a.getY());
 		this.b = new Point(a.getX() + mvtX, a.getY() + mvtY);
 		this.originalSegment = this;
+		this.middle = middle;
+		this.top = top;
+		this.bottom = bottom;
 	}
 
 	public int getFloorHeight() {
@@ -58,7 +70,7 @@ public class Segment {
         this.b = new Point(this.a.getX() + newMvtX, this.a.getY() + newMvtY);
     }
 	
-	public Point getMiddle() {
+	public Point getMiddlePoint() {
 		double middleSegX = Math.min(this.a.getX(), this.b.getX()) + Math.abs((this.a.getX() - this.b.getX())) / 2;
 		double middleSegY = Math.min(this.a.getY(), this.b.getY()) + Math.abs((this.a.getY() - this.b.getY())) / 2;
 		
@@ -82,7 +94,7 @@ public class Segment {
 	}
 	
 	public Segment normal(Point a) {
-		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a);
+		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a, Color.RED, Color.RED, Color.RED);
 	}
 	
 	public double getXMouvement() {
@@ -132,4 +144,28 @@ public class Segment {
     public void setOriginalSegment(Segment originalSegment) {
         this.originalSegment = originalSegment;
     }
+
+    public Color getTop() {
+        return top;
+    }
+
+    public void setTop(Color top) {
+        this.top = top;
+    }
+
+    public Color getBottom() {
+        return bottom;
+    }
+
+    public void setBottom(Color bottom) {
+        this.bottom = bottom;
+    }
+
+	public void setMiddle(Color middle) {
+		this.middle = middle;
+	}
+
+	public Color getMiddle() {
+		return middle;
+	}
 }
