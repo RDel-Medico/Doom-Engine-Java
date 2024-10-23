@@ -198,12 +198,6 @@ public class Map extends JPanel{
 			xPoints[i] = (int) ceilingPoints.get(i).getX();
 		}
 
-		//Print coordinate of ceiling
-		if (sector.isIsReversed()) {
-			System.out.println("Ceiling X: " + Arrays.toString(xPoints));
-			System.out.println("Ceiling Y: " + Arrays.toString(yPointsCeiling));
-		}
-
 		// Draw ceiling
 		if (sector.getCeilColor() != null) {
 			g.setColor(sector.getCeilColor());
