@@ -40,7 +40,7 @@ public class Map extends JPanel{
 		
         
 		this.draw3DMap(g);
-        this.draw2DMap(g);
+        //this.draw2DMap(g);
 	}
 
 	public void draw3DMap(Graphics g) {
@@ -61,6 +61,26 @@ public class Map extends JPanel{
 		}
 
 		
+	}
+
+	private Point calculatePolygonCenter(ArrayList<Point> points) {
+		double sumX = 0;
+		double sumY = 0;
+		int numPoints = points.size();
+	
+		for (Point p : points) {
+			sumX += p.getX();
+			sumY += p.getY();
+		}
+	
+		double centerX = sumX / numPoints;
+		double centerY = sumY / numPoints;
+	
+		return new Point(centerX, centerY);
+	}
+	
+	private double angleFromCenter(Point center, Point p) {
+		return Math.atan2(p.getY() - center.getY(), p.getX() - center.getX());
 	}
 
 	private void drawCeilingAndFloor(Graphics g, Sector sector) {
@@ -147,10 +167,41 @@ public class Map extends JPanel{
 			yPointsCeiling[yPointsCeiling.length - 1] = 0;
 		}
 
+		ArrayList<Point> floorPoints = new ArrayList<>();
+		ArrayList<Point> ceilingPoints = new ArrayList<>();
+
+		for (int i = 0; i < xPoints.length; i++) {
+			floorPoints.add(new Point(xPoints[i], yPointsFloor[i]));
+			ceilingPoints.add(new Point(xPoints[i], yPointsCeiling[i]));
+		}
+
+		// Order the floor and ceiling points based on the angle from the center of the polygon
+		Point polygonCenterF = calculatePolygonCenter(floorPoints);
+		floorPoints.sort((p1, p2) -> Double.compare(angleFromCenter(polygonCenterF, p1), angleFromCenter(polygonCenterF, p2)));
+		Point polygonCenterC = calculatePolygonCenter(ceilingPoints);
+		ceilingPoints.sort((p1, p2) -> Double.compare(angleFromCenter(polygonCenterC, p1), angleFromCenter(polygonCenterC, p2)));
+
+		// Recreate the point arrays
+		for (int i = 0; i < floorPoints.size(); i++) {
+			xPoints[i] = (int) floorPoints.get(i).getX();
+			yPointsFloor[i] = (int) floorPoints.get(i).getY();
+			yPointsCeiling[i] = (int) ceilingPoints.get(i).getY();
+		}
+
 		// Draw floor
 		if (sector.getFloorColor() != null) {
 			g.setColor(sector.getFloorColor());
 			g.fillPolygon(xPoints, yPointsFloor, xPoints.length);
+		}
+
+		for (int i = 0; i < ceilingPoints.size(); i++) {
+			xPoints[i] = (int) ceilingPoints.get(i).getX();
+		}
+
+		//Print coordinate of ceiling
+		if (sector.isIsReversed()) {
+			System.out.println("Ceiling X: " + Arrays.toString(xPoints));
+			System.out.println("Ceiling Y: " + Arrays.toString(yPointsCeiling));
 		}
 
 		// Draw ceiling
@@ -199,6 +250,15 @@ public class Map extends JPanel{
 						b = Utility.intersectionPoint(s, leftFOVBoundary);
 					}
 				}
+			}
+		}
+
+		// Check if point b is within the FOV
+		if (angleB < -halfFOV || angleB > halfFOV) {
+			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+				b = Utility.intersectionPoint(s, leftFOVBoundary);
+			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+				b = Utility.intersectionPoint(s, rightFOVBoundary);
 			}
 		}
 
