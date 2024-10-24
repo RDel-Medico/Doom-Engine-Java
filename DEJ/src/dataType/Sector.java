@@ -8,6 +8,7 @@ public class Sector {
 
 	private int floorHeight;
 	private int ceilHeight;
+	private int ceilEnd;
 
 	private Color floorColor;
 	private Color ceilColor;
@@ -15,7 +16,7 @@ public class Sector {
 	private boolean isReversed;
 	
         @SuppressWarnings("OverridableMethodCallInConstructor")
-	public Sector(ArrayList<Segment> seg, int floorHeight, int ceilHeight, Color floorColor, Color ceilColor, boolean isReversed) {
+	public Sector(ArrayList<Segment> seg, int floorHeight, int ceilHeight, int ceilEnd, Color floorColor, Color ceilColor, boolean isReversed) {
 		this.shape = seg;
 		this.floorHeight = floorHeight;
 		this.ceilHeight = ceilHeight;
@@ -23,6 +24,7 @@ public class Sector {
 		this.floorColor = floorColor;
 		this.ceilColor = ceilColor;
 		this.isReversed = isReversed;
+		this.ceilEnd = ceilEnd;
 	}
 
 	public void setSector() {
@@ -122,5 +124,13 @@ public class Sector {
 
     public void setIsReversed(boolean isReversed) {
         this.isReversed = isReversed;
+    }
+
+    public int getCeilEnd() {
+        return ceilEnd;
+    }
+
+    public void setCeilEnd(int ceilEnd) {
+        this.ceilEnd = ceilEnd;
     }
 }

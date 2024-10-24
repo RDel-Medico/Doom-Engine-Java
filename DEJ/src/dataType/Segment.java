@@ -39,6 +39,10 @@ public class Segment {
 		return s.getCeilHeight();
 	}
 
+	public int getCeilingEnd() {
+		return s.getCeilEnd();
+	}
+
 	public Sector getSector() {
 		return s;
 	}

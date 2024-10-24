@@ -4,6 +4,7 @@ import dataType.Point;
 import dataType.Sector;
 import dataType.Segment;
 import java.util.ArrayList;
+import main.Main;
 
 public class Utility {
 
@@ -180,6 +181,15 @@ public class Utility {
 		return num > 0 || (isZero(num) && den < 0);
 	}
 
+    public static Sector findSectorContainingPoint(Point p) {
+        for (Sector sector : Main.map.getMap()) {
+            if (isPointInSector(p, sector)) {
+                return sector;
+            }
+        }
+        return null;
+    }
+
 	public static boolean isPointInSector(Point p, Sector sector) {
         int intersectionCount = 0;
         ArrayList<Segment> segments = sector.getSegments();
@@ -187,11 +197,6 @@ public class Utility {
         for (Segment segment : segments) {
             Point a = segment.getA();
             Point b = segment.getB();
-
-            // Check if the point is exactly on a vertex
-            if (p.equals(a) || p.equals(b)) {
-                return true;
-            }
 
             // Check if the ray intersects the segment
             if (doesRayIntersectSegment(p, a, b)) {

@@ -1,14 +1,17 @@
 package player;
 
 import dataType.Point;
+import dataType.Sector;
+import utility.Utility;
 
 public class Camera {
 
 	private static final double MOVE_SPEED = 0.3;
 	private static final double TURN_SPEED = 3.0;
+	private static final double FOV = 90.0;
 
 	public Point pos;
-	private static final double FOV = 90.0;
+	private double height;
 	public double yaw;
 	
 	private static final Camera self;
@@ -18,8 +21,9 @@ public class Camera {
 	}
 	
 	private Camera() {
-		pos = new Point(10, 10);
+		pos = new Point(30, 10);
 		yaw = 0;
+		height = 0;
 	}
 
 	public void rotate(double angle) {
@@ -64,5 +68,20 @@ public class Camera {
 
 	public double getFOV() {
 		return FOV;
+	}
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+	public void updateHeight() {
+		Sector curr = Utility.findSectorContainingPoint(pos);
+		if (curr != null) {
+			height = curr.getFloorHeight();
+		}
 	}
 }

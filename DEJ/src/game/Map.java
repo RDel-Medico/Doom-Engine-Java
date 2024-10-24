@@ -40,10 +40,19 @@ public class Map extends JPanel{
 		
         
 		this.draw3DMap(g);
-        //this.draw2DMap(g);
+        this.draw2DMap(g);
 	}
 
 	public void draw3DMap(Graphics g) {
+
+		// draw ceil
+		g.setColor(Main.CEIL_COLOR);
+		g.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT / 2);
+
+		// draw floor
+		g.setColor(Main.FLOOR_COLOR);
+		g.fillRect(0, Main.SCREEN_HEIGHT / 2, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT / 2);
+
 		ArrayList<Segment> toDraw = new ArrayList<>();
 		for (int i : this.bspSegmentVisible)
 			toDraw.add(this.bspMap.get(i).getRootSegment());
@@ -59,8 +68,6 @@ public class Map extends JPanel{
 		for (Segment curr : toDraw) {
 			this.drawWall3D(g, curr, drawnSectors);
 		}
-
-		
 	}
 
 	private Point calculatePolygonCenter(ArrayList<Point> points) {
@@ -89,6 +96,7 @@ public class Map extends JPanel{
 		double playerYaw = Main.player.getYaw();
 		double playerFOV = Main.player.getFOV();
 		double halfFOV = playerFOV / 2.0;
+		double cameraHeight = Main.player.getHeight();
 
 		Point leftFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, -halfFOV);
 		Point rightFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, halfFOV);
@@ -148,8 +156,8 @@ public class Map extends JPanel{
 			int height = (int) (Main.SCREEN_HEIGHT / distance) * HEIGHT_SCALE;
 
 			xPoints[i] = screenX;
-			yPointsFloor[i] = Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * sector.getFloorHeight() / HEIGHT_SCALE);
-			yPointsCeiling[i] = Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * sector.getCeilHeight() / HEIGHT_SCALE);
+			yPointsFloor[i] = Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * (sector.getFloorHeight() - cameraHeight) / HEIGHT_SCALE);
+			yPointsCeiling[i] = Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * (sector.getCeilHeight() - cameraHeight) / HEIGHT_SCALE);
 		}
 
 		if (Utility.isPointInSector(playerPos, sector)) {
@@ -207,8 +215,9 @@ public class Map extends JPanel{
 
 	private void drawWall3D(Graphics g, Segment s, Set<Sector> drawnSectors) {
 		Point playerPos = Main.player.pos();
-		double playerYaw = Main.player.getYaw();
+    	double playerYaw = Main.player.getYaw();
 		double playerFOV = Main.player.getFOV();
+		double cameraHeight = Main.player.getHeight(); // Get the camera height
 
 		// Calculate the distance from the camera to the segment endpoints
 		Point a = s.getA();
@@ -237,22 +246,18 @@ public class Map extends JPanel{
 						b = Utility.intersectionPoint(s, rightFOVBoundary);
 					}
 				}
-			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
-				a = Utility.intersectionPoint(s, rightFOVBoundary);
-				if (angleB < -halfFOV || angleB > halfFOV) {
-					if (Utility.boundedIntersection(s, leftFOVBoundary)) {
-						b = Utility.intersectionPoint(s, leftFOVBoundary);
-					}
-				}
 			}
 		}
 
 		// Check if point b is within the FOV
 		if (angleB < -halfFOV || angleB > halfFOV) {
-			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
-				b = Utility.intersectionPoint(s, leftFOVBoundary);
-			} else if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+			if (Utility.boundedIntersection(s, rightFOVBoundary)) {
 				b = Utility.intersectionPoint(s, rightFOVBoundary);
+				if (angleA < -halfFOV || angleA > halfFOV) {
+					if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+						a = Utility.intersectionPoint(s, leftFOVBoundary);
+					}
+				}
 			}
 		}
 
@@ -275,10 +280,12 @@ public class Map extends JPanel{
 		int heightB = (int) (Main.SCREEN_HEIGHT / distanceB) * HEIGHT_SCALE;
 
 		// Calculate the screen coordinates for the floor and ceiling heights
-		int floorHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * s.getFloorHeight() / HEIGHT_SCALE);
-		int floorHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * s.getFloorHeight() / HEIGHT_SCALE);
-		int ceilHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * s.getCeilingHeight() / HEIGHT_SCALE);
-		int ceilHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * s.getCeilingHeight() / HEIGHT_SCALE);
+		int floorHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * (s.getFloorHeight() - cameraHeight) / HEIGHT_SCALE);
+		int floorHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * (s.getFloorHeight() - cameraHeight) / HEIGHT_SCALE);
+		int ceilHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * (s.getCeilingHeight() - cameraHeight) / HEIGHT_SCALE);
+		int ceilHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * (s.getCeilingHeight() - cameraHeight) / HEIGHT_SCALE);
+		int ceilEndHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * (s.getCeilingEnd() - cameraHeight) / HEIGHT_SCALE);
+		int ceilEndHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * (s.getCeilingEnd() - cameraHeight) / HEIGHT_SCALE);
 
 		// Determine the screen coordinates for the projected points
 		int bottomA = Main.SCREEN_HEIGHT / 2 + heightA / 2;
@@ -287,36 +294,26 @@ public class Map extends JPanel{
 		int floorB = bottomB - floorHeightB;
 		int ceilA = bottomA - ceilHeightA;
 		int ceilB = bottomB - ceilHeightB;
-
-		// Draw the floor and ceiling
-		if (!drawnSectors.contains(s.getSector())) {
-			drawCeilingAndFloor(g, s.getSector());
-			drawnSectors.add(s.getSector());
-		}
+		int ceilEndA = bottomA - ceilEndHeightA;
+		int ceilEndB = bottomB - ceilEndHeightB;
 
 		// Draw the bottom part of the wall
 		if (s.getBottom() != null) {
 			g.setColor(s.getBottom());
-			int[] bottomXPoints = {screenXA, screenXB, screenXB, screenXA};
-			int[] bottomYPoints = {bottomA, bottomB, floorB, floorA};
-			g.fillPolygon(bottomXPoints, bottomYPoints, 4);
+			g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{floorA, floorB, bottomB, bottomA}, 4);
 		}
 
-		// Draw the middle part of the wall
+		// Check if the middle color is null
 		if (s.getMiddle() != null) {
+			// Draw the middle part of the wall
 			g.setColor(s.getMiddle());
-			int[] middleXPoints = {screenXA, screenXB, screenXB, screenXA};
-			int[] middleYPoints = {floorA, floorB, ceilB, ceilA};
-			g.fillPolygon(middleXPoints, middleYPoints, 4);
-			
+			g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilA, ceilB, floorB, floorA}, 4);
 		}
 
 		// Draw the top part of the wall
 		if (s.getTop() != null) {
 			g.setColor(s.getTop());
-			int[] topXPoints = {screenXA, screenXB, screenXB, screenXA};
-			int[] topYPoints = {ceilA, ceilB, ceilB - heightB, ceilA - heightA};
-			g.fillPolygon(topXPoints, topYPoints, 4);
+			g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilEndA, ceilEndB, ceilB, ceilA}, 4);
 		}
 
 		if (s.getMiddle() != null) {
@@ -324,11 +321,17 @@ public class Map extends JPanel{
 			((Graphics2D) g).setStroke(new BasicStroke(3));
 			// Draw the top and bottom of the wall
 			g.drawLine(screenXA, ceilA, screenXB, ceilB);
-			g.drawLine(screenXA, bottomA, screenXB, bottomB);
+			g.drawLine(screenXA, floorA, screenXB, floorB);
 			// Draw the left and right of the wall
-			g.drawLine(screenXA, bottomA, screenXA, ceilA);
-			g.drawLine(screenXB, bottomB, screenXB, ceilB);
+			g.drawLine(screenXA, ceilA, screenXA, floorA);
+			g.drawLine(screenXB, ceilB, screenXB, floorB);
 			((Graphics2D) g).setStroke(new BasicStroke(1));
+		}
+
+    	// Draw the floor and ceiling
+		if (!drawnSectors.contains(s.getSector())) {
+			drawCeilingAndFloor(g, s.getSector());
+			drawnSectors.add(s.getSector());
 		}
 	}
 
@@ -400,7 +403,7 @@ public class Map extends JPanel{
 		for (int i = 0; i < sector.getNbSegment(); i++)
 			res.add(convertSeg(sector.getSegment(i)));
 		
-		return new Sector(res, sector.getFloorHeight(), sector.getCeilHeight(), sector.getFloorColor(), sector.getCeilColor(), sector.isIsReversed());
+		return new Sector(res, sector.getFloorHeight(), sector.getCeilHeight(), sector.getCeilEnd(), sector.getFloorColor(), sector.getCeilColor(), sector.isIsReversed());
 	}
 	
 	private Segment convertSeg(Segment segment) {
