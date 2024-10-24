@@ -2,11 +2,12 @@ package player;
 
 import dataType.Point;
 import dataType.Sector;
+import main.Main;
 import utility.Utility;
 
 public class Camera {
 
-	private static final double MOVE_SPEED = 0.3;
+	private static final double MOVE_SPEED = 0.5;
 	private static final double TURN_SPEED = 3.0;
 	private static final double FOV = 90.0;
 
@@ -58,6 +59,22 @@ public class Camera {
         pos.setY(pos.getY() - deltaY);
     }
 
+	public void moveLeft() {
+		double angle = Math.toRadians(yaw + 90);
+		double deltaX = MOVE_SPEED * Math.cos(angle);
+		double deltaY = MOVE_SPEED * Math.sin(angle);
+		pos.setX(pos.getX() + deltaX);
+		pos.setY(pos.getY() + deltaY);
+	}
+
+	public void moveRight() {
+		double angle = Math.toRadians(yaw - 90);
+		double deltaX = MOVE_SPEED * Math.cos(angle);
+		double deltaY = MOVE_SPEED * Math.sin(angle);
+		pos.setX(pos.getX() + deltaX);
+		pos.setY(pos.getY() + deltaY);
+	}
+
 	public void turnLeft() {
 		yaw -= TURN_SPEED;
 	}
@@ -78,10 +95,15 @@ public class Camera {
         this.height = height;
     }
 
-	public void updateHeight() {
+	public void updateHeight(boolean moving) {
 		Sector curr = Utility.findSectorContainingPoint(pos);
-		if (curr != null) {
-			height = curr.getFloorHeight();
-		}
+    if (curr != null) {
+        int baseHeight = curr.getFloorHeight();
+        if (moving) {
+            height = baseHeight + Main.BOBBING_AMPLITUDE * Math.sin(Main.bobbingTime);
+        } else {
+            height = baseHeight;
+        }
+    }
 	}
 }

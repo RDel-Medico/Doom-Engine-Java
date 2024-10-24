@@ -39,21 +39,35 @@ public class Map extends JPanel{
 		super.paintComponent(g);
         this.setBackground(Color.BLACK);
 
+		if (Main.DRAW_2D) {
+			this.draw2DMap(g);
+		}
 		
-        
-		this.draw3DMap(g);
-        //this.draw2DMap(g);
+		if (Main.DRAW_3D) {
+			this.draw3DMap(g);
+		}
 	}
 
 	public void draw3DMap(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
 
-		// draw ceil
-		g.setColor(Main.CEIL_COLOR);
-		g.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT / 2);
-
-		// draw floor
-		g.setColor(Main.FLOOR_COLOR);
-		g.fillRect(0, Main.SCREEN_HEIGHT / 2, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT / 2);
+		// Draw the sky
+		if (Main.skyTexture != null) {
+			for (int x = 0; x < Main.SCREEN_WIDTH; x += Main.skyTexture.getWidth()) {
+				for (int y = 0; y < Main.SCREEN_HEIGHT / 2; y += Main.skyTexture.getHeight()) {
+					g2d.drawImage(Main.skyTexture, x, y, this);
+				}
+			}
+		}
+	
+		// Draw the floor
+		if (Main.floorTexture != null) {
+			for (int x = 0; x < Main.SCREEN_WIDTH; x += Main.levelFloorTexture.getWidth()) {
+				for (int y = Main.SCREEN_HEIGHT / 2; y < Main.SCREEN_HEIGHT; y += Main.levelFloorTexture.getHeight()) {
+					g2d.drawImage(Main.levelFloorTexture, x, y, this);
+				}
+			}
+		}
 
 		ArrayList<Segment> toDraw = new ArrayList<>();
 		for (int i : this.bspSegmentVisible)
@@ -70,6 +84,8 @@ public class Map extends JPanel{
 		for (Segment curr : toDraw) {
 			this.drawWall3D(g, curr, drawnSectors);
 		}
+
+		this.drawPistol(g);
 	}
 
 	private Point calculatePolygonCenter(ArrayList<Point> points) {
@@ -200,7 +216,10 @@ public class Map extends JPanel{
 
 		// Draw floor
 		if (sector.getFloorTexture() != null) {
-			TexturePaint floorTexturePaint = new TexturePaint(sector.getFloorTexture(), new Rectangle2D.Double(0, 0, sector.getFloorTexture().getWidth(), sector.getFloorTexture().getHeight()));
+			int textureWidth = sector.getFloorTexture().getWidth();
+			int textureHeight = sector.getFloorTexture().getHeight();
+			Rectangle2D textureRect = new Rectangle2D.Double(0, 0, textureWidth, textureHeight);
+			TexturePaint floorTexturePaint = new TexturePaint(sector.getFloorTexture(), textureRect);
 			Graphics2D g2d = (Graphics2D) g;
 			g2d.setPaint(floorTexturePaint);
 			g2d.fillPolygon(xPoints, yPointsFloor, xPoints.length);
@@ -222,6 +241,16 @@ public class Map extends JPanel{
 		} else if (sector.getCeilColor() != null) {
 			g.setColor(sector.getCeilColor());
 			g.fillPolygon(xPoints, yPointsCeiling, xPoints.length);
+		}
+	}
+
+	private void drawPistol(Graphics g) {
+		if (Main.pistolTexture != null) {
+			int pistolWidth = Main.pistolTexture.getWidth();
+			int pistolHeight = Main.pistolTexture.getHeight();
+			int x = (int) Main.weaponX - pistolWidth / 2;
+			int y = (int) Main.weaponY - pistolHeight / 2;
+			g.drawImage(Main.pistolTexture, x, y, null);
 		}
 	}
 
@@ -292,20 +321,27 @@ public class Map extends JPanel{
 		int heightB = (int) (Main.SCREEN_HEIGHT / distanceB) * HEIGHT_SCALE;
 
 		// Calculate the screen coordinates for the floor and ceiling heights
-		int floorHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * (s.getFloorHeight() - cameraHeight) / HEIGHT_SCALE);
-		int floorHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * (s.getFloorHeight() - cameraHeight) / HEIGHT_SCALE);
-		int ceilHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * (s.getCeilingHeight() - cameraHeight) / HEIGHT_SCALE);
-		int ceilHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * (s.getCeilingHeight() - cameraHeight) / HEIGHT_SCALE);
-		int ceilEndHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * (s.getCeilingEnd() - cameraHeight) / HEIGHT_SCALE);
-		int ceilEndHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * (s.getCeilingEnd() - cameraHeight) / HEIGHT_SCALE);
+		int floorHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * s.getFloorHeight() / HEIGHT_SCALE);
+		int floorHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * s.getFloorHeight() / HEIGHT_SCALE);
+		int ceilHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * s.getCeilingHeight() / HEIGHT_SCALE);
+		int ceilHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * s.getCeilingHeight() / HEIGHT_SCALE);
+		int ceilEndHeightA = (int) (Main.SCREEN_HEIGHT / distanceA * s.getCeilingEnd() / HEIGHT_SCALE);
+		int ceilEndHeightB = (int) (Main.SCREEN_HEIGHT / distanceB * s.getCeilingEnd() / HEIGHT_SCALE);
 
 		// Determine the screen coordinates for the projected points
-		int bottomA = Main.SCREEN_HEIGHT / 2 + heightA / 2;
-		int bottomB = Main.SCREEN_HEIGHT / 2 + heightB / 2;
+		// Bottom A and B are the bottom of the wall
+		int bottomA = Main.SCREEN_HEIGHT / 2 + heightA / 2 + (int) (cameraHeight * Main.SCREEN_HEIGHT / distanceA / HEIGHT_SCALE);
+		int bottomB = Main.SCREEN_HEIGHT / 2 + heightB / 2 + (int) (cameraHeight * Main.SCREEN_HEIGHT / distanceB / HEIGHT_SCALE);
+
+		// Floor A and B are the top of the bottom wall
 		int floorA = bottomA - floorHeightA;
 		int floorB = bottomB - floorHeightB;
+
+		// Ceil A and B are the bottom of the top wall
 		int ceilA = bottomA - ceilHeightA;
 		int ceilB = bottomB - ceilHeightB;
+
+		// CeilEnd A and B are the top of the top wall
 		int ceilEndA = bottomA - ceilEndHeightA;
 		int ceilEndB = bottomB - ceilEndHeightB;
 
@@ -326,7 +362,10 @@ public class Map extends JPanel{
 		if (s.getMiddle() != null) {
 			// Draw the middle part of the wall
 			if (s.getTexture() != null) {
-				g2d.setPaint(new TexturePaint(s.getTexture(), new Rectangle2D.Double(screenXA, ceilA, screenXB - screenXA, floorA - ceilA)));
+				int textureWidth = s.getTexture().getWidth();
+				int textureHeight = s.getTexture().getHeight();
+				Rectangle2D textureRect = new Rectangle2D.Double(0, 0, textureWidth, textureHeight);
+				g2d.setPaint(new TexturePaint(s.getTexture(), textureRect));
 				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilA, ceilB, floorB, floorA}, 4);
 			} else {
 				g2d.setColor(s.getMiddle());
@@ -337,7 +376,10 @@ public class Map extends JPanel{
 		// Draw the top part of the wall
 		if (s.getTop() != null) {
 			if (s.getTopTexture() != null) {
-				g2d.setPaint(new TexturePaint(s.getTopTexture(), new Rectangle2D.Double(screenXA, ceilEndA, screenXB - screenXA, ceilA - ceilEndA)));
+				int textureWidth = s.getTopTexture().getWidth();
+				int textureHeight = s.getTopTexture().getHeight();
+				Rectangle2D textureRect = new Rectangle2D.Double(0, 0, textureWidth, textureHeight);
+				g2d.setPaint(new TexturePaint(s.getTopTexture(), textureRect));
 				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilEndA, ceilEndB, ceilB, ceilA}, 4);
 			} else {
 				g2d.setColor(s.getTop());
