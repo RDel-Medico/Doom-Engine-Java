@@ -1,6 +1,8 @@
 package dataType;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import main.Main;
 
 public class Segment {
 	private Point a;
@@ -12,6 +14,10 @@ public class Segment {
 	private Color middle;
 	private Color top;
 	private Color bottom;
+
+	private BufferedImage middleTexture;
+	private BufferedImage topTexture;
+	private BufferedImage bottomTexture;
 	
 	public Segment (Point a, Point b, Color middle, Color top, Color bottom) {
 		this.a = a;
@@ -20,6 +26,9 @@ public class Segment {
 		this.middle = middle;
 		this.top = top;
 		this.bottom = bottom;
+		this.middleTexture = Main.middleWallTexture;
+		this.topTexture = Main.topWallTexture;
+		this.bottomTexture = Main.bottomWallTexture;
 	}
 	
 	public Segment (double mvtX, double mvtY, Point a, Color middle, Color top, Color bottom) {
@@ -29,6 +38,9 @@ public class Segment {
 		this.middle = middle;
 		this.top = top;
 		this.bottom = bottom;
+		this.middleTexture = Main.middleWallTexture;
+		this.topTexture = Main.topWallTexture;
+		this.bottomTexture = Main.bottomWallTexture;
 	}
 
 	public int getFloorHeight() {
@@ -172,4 +184,28 @@ public class Segment {
 	public Color getMiddle() {
 		return middle;
 	}
+
+    public BufferedImage getTexture() {
+        return middleTexture;
+    }
+
+    public void setTexture(BufferedImage texture) {
+        this.middleTexture = texture;
+    }
+
+    public BufferedImage getTopTexture() {
+        return topTexture;
+    }
+
+    public void setTopTexture(BufferedImage topTexture) {
+        this.topTexture = topTexture;
+    }
+
+    public BufferedImage getBottomTexture() {
+        return bottomTexture;
+    }
+
+    public void setBottomTexture(BufferedImage bottomTexture) {
+        this.bottomTexture = bottomTexture;
+    }
 }

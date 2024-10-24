@@ -10,9 +10,13 @@ import game.Map;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 import player.Camera;
@@ -22,7 +26,7 @@ public class Main implements KeyListener {
 	public final static int SCREEN_HEIGHT = 900;
 
 	public final static Color CEIL_COLOR = Color.RED;
-	public final static Color FLOOR_COLOR = Color.RED;
+	public final static Color FLOOR_COLOR = new Color(139, 69, 19);
 	
 	public final static Point DISPLAY_TOP_LEFT = new Point(100, 100);
 	public final static Point DISPLAY_BOTTOM_RIGHT = new Point(1400, 800);
@@ -31,6 +35,14 @@ public class Main implements KeyListener {
 	public static Map map;
 	public static BSPTraversal bspT;
 	public static BSP bsp;
+
+	public static BufferedImage middleWallTexture = null;
+	public static BufferedImage topWallTexture = null;
+	public static BufferedImage bottomWallTexture = null;
+	public static BufferedImage ceilingTexture = null;
+	public static BufferedImage floorTexture = null;
+
+	public static boolean texture = true;
 
         @SuppressWarnings("FieldMayBeFinal")
 	private static Set<Integer> pressedKeys = new HashSet<>();
@@ -52,6 +64,18 @@ public class Main implements KeyListener {
 	}
 	
 	public static void setup() {
+		if (texture) {
+			try {
+				middleWallTexture = ImageIO.read(new File ("./ressources/wall.png"));
+				topWallTexture = ImageIO.read(new File ("./ressources/top.png"));
+				bottomWallTexture = ImageIO.read(new File ("./ressources/bottom.png"));
+				ceilingTexture = ImageIO.read(new File ("./ressources/ceiling.png"));
+				floorTexture = ImageIO.read(new File ("./ressources/floor.png"));
+			} catch (IOException e) {
+				System.out.println("Error loading texture");
+			}
+		}
+		
 		ArrayList<Sector> level = new ArrayList<>();
 
 		Point a = new Point(20, 0);
@@ -106,6 +130,9 @@ public class Main implements KeyListener {
 		hallway.add(new Segment(g, k, Color.GREEN, null, Color.WHITE));
 		hallway.add(new Segment(g, f, null, Color.ORANGE, null));
 		hallway.add(new Segment(j, f, Color.GREEN, null, Color.WHITE));
+		Sector hall = new Sector(hallway, 0, 70, 80, FLOOR_COLOR, CEIL_COLOR, false);
+		hall.setCeilingTexture(middleWallTexture);
+		level.add(hall);
 
 		ArrayList<Segment> leftRoom = new ArrayList<>();
 		leftRoom.add(new Segment(y, i, Color.GREEN, Color.CYAN, Color.WHITE));
@@ -129,6 +156,10 @@ public class Main implements KeyListener {
 		leftTriangle.add(new Segment(s, t, null, Color.CYAN, Color.WHITE));
 		leftTriangle.add(new Segment(t, m, null, Color.CYAN, Color.WHITE));
 		leftTriangle.add(new Segment(m, s, null, Color.CYAN, Color.WHITE));
+		Sector lTriangle = new Sector(leftTriangle, 20, 70, 80, FLOOR_COLOR, CEIL_COLOR, false);
+		lTriangle.setFloorTexture(floorTexture);
+		lTriangle.setCeilingTexture(floorTexture);
+		level.add(lTriangle);
 
 		ArrayList<Segment> rightTriangle = new ArrayList<>();
 		rightTriangle.add(new Segment(w, x, Color.MAGENTA, Color.CYAN, Color.WHITE));
@@ -140,18 +171,27 @@ public class Main implements KeyListener {
 		firstStep.add(new Segment(r, o, null, null, Color.WHITE));
 		firstStep.add(new Segment(o, n, null, null, Color.WHITE));
 		firstStep.add(new Segment(n, q, null, null, Color.WHITE));
+		Sector fStep = new Sector(firstStep, 10, 80, 80, FLOOR_COLOR, CEIL_COLOR, false);
+		fStep.setFloorTexture(floorTexture);
+		level.add(fStep);
 
 		ArrayList<Segment> secondStep = new ArrayList<>();
 		secondStep.add(new Segment(u, v, null, null, Color.WHITE));
 		secondStep.add(new Segment(v, r, null, null, Color.WHITE));
 		secondStep.add(new Segment(r, q, null, null, Color.WHITE));
 		secondStep.add(new Segment(q, u, null, null, Color.WHITE));
+		Sector sStep = new Sector(secondStep, 20, 80, 80, FLOOR_COLOR, CEIL_COLOR, false);
+		sStep.setFloorTexture(floorTexture);
+		level.add(sStep);
 
 		ArrayList<Segment> thirdStep = new ArrayList<>();
 		thirdStep.add(new Segment(z, aa, null, null, Color.WHITE));
 		thirdStep.add(new Segment(aa, v, null, null, Color.WHITE));
 		thirdStep.add(new Segment(v, u, null, null, Color.WHITE));
 		thirdStep.add(new Segment(u, z, null, null, Color.WHITE));
+		Sector tStep = new Sector(thirdStep, 30, 80, 80, FLOOR_COLOR, CEIL_COLOR, false);
+		tStep.setFloorTexture(floorTexture);
+		level.add(tStep);
 
 		level.add(new Sector(leftStart, 0, 80, 80, FLOOR_COLOR, CEIL_COLOR, true));
 		level.add(new Sector(middleStart, 0, 80, 80, FLOOR_COLOR, CEIL_COLOR, true));
@@ -159,13 +199,7 @@ public class Main implements KeyListener {
 		level.add(new Sector(leftRoom, 0, 80, 80, FLOOR_COLOR, CEIL_COLOR, true));
 		level.add(new Sector(middleRoom, 0, 80, 80, FLOOR_COLOR, CEIL_COLOR, true));
 		level.add(new Sector(rightRoom, 0, 80, 80, FLOOR_COLOR, CEIL_COLOR, true));
-		level.add(new Sector(hallway, 0, 70, 80, FLOOR_COLOR, CEIL_COLOR, false));
-
-		level.add(new Sector(leftTriangle, 20, 70, 80, FLOOR_COLOR, CEIL_COLOR, false));
 		level.add(new Sector(rightTriangle, 0, 80, 80, FLOOR_COLOR, CEIL_COLOR, false));
-		level.add(new Sector(firstStep, 10, 80, 80, FLOOR_COLOR, CEIL_COLOR, false));
-		level.add(new Sector(secondStep, 20, 80, 80, FLOOR_COLOR, CEIL_COLOR, false));
-		level.add(new Sector(thirdStep, 30, 80, 80, FLOOR_COLOR, CEIL_COLOR, false));
 		
 
 		

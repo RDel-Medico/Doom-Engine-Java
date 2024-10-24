@@ -7,6 +7,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.TexturePaint;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,7 +42,7 @@ public class Map extends JPanel{
 		
         
 		this.draw3DMap(g);
-        this.draw2DMap(g);
+        //this.draw2DMap(g);
 	}
 
 	public void draw3DMap(Graphics g) {
@@ -197,7 +199,12 @@ public class Map extends JPanel{
 		}
 
 		// Draw floor
-		if (sector.getFloorColor() != null) {
+		if (sector.getFloorTexture() != null) {
+			TexturePaint floorTexturePaint = new TexturePaint(sector.getFloorTexture(), new Rectangle2D.Double(0, 0, sector.getFloorTexture().getWidth(), sector.getFloorTexture().getHeight()));
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.setPaint(floorTexturePaint);
+			g2d.fillPolygon(xPoints, yPointsFloor, xPoints.length);
+		} else if (sector.getFloorColor() != null) {
 			g.setColor(sector.getFloorColor());
 			g.fillPolygon(xPoints, yPointsFloor, xPoints.length);
 		}
@@ -207,7 +214,12 @@ public class Map extends JPanel{
 		}
 
 		// Draw ceiling
-		if (sector.getCeilColor() != null) {
+		if (sector.getCeilingTexture() != null) {
+			TexturePaint ceilingTexturePaint = new TexturePaint(sector.getCeilingTexture(), new Rectangle2D.Double(0, 0, sector.getCeilingTexture().getWidth(), sector.getCeilingTexture().getHeight()));
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.setPaint(ceilingTexturePaint);
+			g2d.fillPolygon(xPoints, yPointsCeiling, xPoints.length);
+		} else if (sector.getCeilColor() != null) {
 			g.setColor(sector.getCeilColor());
 			g.fillPolygon(xPoints, yPointsCeiling, xPoints.length);
 		}
@@ -215,7 +227,7 @@ public class Map extends JPanel{
 
 	private void drawWall3D(Graphics g, Segment s, Set<Sector> drawnSectors) {
 		Point playerPos = Main.player.pos();
-    	double playerYaw = Main.player.getYaw();
+		double playerYaw = Main.player.getYaw();
 		double playerFOV = Main.player.getFOV();
 		double cameraHeight = Main.player.getHeight(); // Get the camera height
 
@@ -297,27 +309,45 @@ public class Map extends JPanel{
 		int ceilEndA = bottomA - ceilEndHeightA;
 		int ceilEndB = bottomB - ceilEndHeightB;
 
+		Graphics2D g2d = (Graphics2D) g;
+
 		// Draw the bottom part of the wall
 		if (s.getBottom() != null) {
-			g.setColor(s.getBottom());
-			g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{floorA, floorB, bottomB, bottomA}, 4);
+			if (s.getBottomTexture() != null) {
+				g2d.setPaint(new TexturePaint(s.getBottomTexture(), new Rectangle2D.Double(screenXA, floorA, screenXB - screenXA, bottomA - floorA)));
+				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{floorA, floorB, bottomB, bottomA}, 4);
+			} else {
+				g2d.setColor(s.getBottom());
+				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{floorA, floorB, bottomB, bottomA}, 4);
+			}
 		}
 
 		// Check if the middle color is null
 		if (s.getMiddle() != null) {
 			// Draw the middle part of the wall
-			g.setColor(s.getMiddle());
-			g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilA, ceilB, floorB, floorA}, 4);
+			if (s.getTexture() != null) {
+				g2d.setPaint(new TexturePaint(s.getTexture(), new Rectangle2D.Double(screenXA, ceilA, screenXB - screenXA, floorA - ceilA)));
+				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilA, ceilB, floorB, floorA}, 4);
+			} else {
+				g2d.setColor(s.getMiddle());
+				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilA, ceilB, floorB, floorA}, 4);
+			}
 		}
 
 		// Draw the top part of the wall
 		if (s.getTop() != null) {
-			g.setColor(s.getTop());
-			g.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilEndA, ceilEndB, ceilB, ceilA}, 4);
+			if (s.getTopTexture() != null) {
+				g2d.setPaint(new TexturePaint(s.getTopTexture(), new Rectangle2D.Double(screenXA, ceilEndA, screenXB - screenXA, ceilA - ceilEndA)));
+				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilEndA, ceilEndB, ceilB, ceilA}, 4);
+			} else {
+				g2d.setColor(s.getTop());
+				g2d.fillPolygon(new int[]{screenXA, screenXB, screenXB, screenXA}, new int[]{ceilEndA, ceilEndB, ceilB, ceilA}, 4);
+			}
 		}
 
+		// Draw the middle wall outline
 		if (s.getMiddle() != null) {
-			g.setColor(Color.WHITE);
+			g.setColor(Color.BLACK);
 			((Graphics2D) g).setStroke(new BasicStroke(3));
 			// Draw the top and bottom of the wall
 			g.drawLine(screenXA, ceilA, screenXB, ceilB);
@@ -328,7 +358,7 @@ public class Map extends JPanel{
 			((Graphics2D) g).setStroke(new BasicStroke(1));
 		}
 
-    	// Draw the floor and ceiling
+		// Draw the floor and ceiling
 		if (!drawnSectors.contains(s.getSector())) {
 			drawCeilingAndFloor(g, s.getSector());
 			drawnSectors.add(s.getSector());

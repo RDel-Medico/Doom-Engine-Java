@@ -1,6 +1,7 @@
 package dataType;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Sector {
@@ -14,6 +15,9 @@ public class Sector {
 	private Color ceilColor;
 
 	private boolean isReversed;
+
+	private BufferedImage ceilingTexture;
+	private BufferedImage floorTexture;
 	
         @SuppressWarnings("OverridableMethodCallInConstructor")
 	public Sector(ArrayList<Segment> seg, int floorHeight, int ceilHeight, int ceilEnd, Color floorColor, Color ceilColor, boolean isReversed) {
@@ -25,6 +29,8 @@ public class Sector {
 		this.ceilColor = ceilColor;
 		this.isReversed = isReversed;
 		this.ceilEnd = ceilEnd;
+		this.ceilingTexture = null;
+		this.floorTexture = null;
 	}
 
 	public void setSector() {
@@ -132,5 +138,21 @@ public class Sector {
 
     public void setCeilEnd(int ceilEnd) {
         this.ceilEnd = ceilEnd;
+    }
+
+    public BufferedImage getCeilingTexture() {
+        return ceilingTexture;
+    }
+
+    public void setCeilingTexture(BufferedImage ceilingTexture) {
+        this.ceilingTexture = ceilingTexture;
+    }
+
+    public BufferedImage getFloorTexture() {
+        return floorTexture;
+    }
+
+    public void setFloorTexture(BufferedImage floorTexture) {
+        this.floorTexture = floorTexture;
     }
 }
