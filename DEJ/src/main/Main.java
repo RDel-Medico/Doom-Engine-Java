@@ -67,6 +67,7 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 	public static BufferedImage skyTexture = null;
 	public static BufferedImage levelFloorTexture = null;
 	public static BufferedImage pistolTexture = null;
+	public static BufferedImage pistolFiringTexture = null;
 
 	public static double weaponX = SCREEN_WIDTH / 2;
 	public static double weaponY = SCREEN_HEIGHT - 150;
@@ -115,6 +116,7 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 				skyTexture = ImageIO.read(new File ("./ressources/background.png"));
 				levelFloorTexture = ImageIO.read(new File ("./ressources/floorLevel.png"));
 				pistolTexture = ImageIO.read(new File ("./ressources/pistol.png"));
+				pistolFiringTexture = ImageIO.read(new File ("./ressources/pistolFiring.png"));
 			} catch (IOException e) {
 				System.out.println("Error loading texture");
 			}
@@ -201,9 +203,9 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		rightRoom.add(new Segment(k, l, Color.GREEN, Color.CYAN, Color.WHITE, true));
 
 		ArrayList<Segment> leftTriangle = new ArrayList<>();
-		leftTriangle.add(new Segment(s, t, null, Color.CYAN, Color.WHITE, false));
-		leftTriangle.add(new Segment(t, m, null, Color.CYAN, Color.WHITE, false));
-		leftTriangle.add(new Segment(m, s, null, Color.CYAN, Color.WHITE, false));
+		leftTriangle.add(new Segment(s, t, null, Color.CYAN, Color.WHITE, true));
+		leftTriangle.add(new Segment(t, m, null, Color.CYAN, Color.WHITE, true));
+		leftTriangle.add(new Segment(m, s, null, Color.CYAN, Color.WHITE, true));
 		Sector lTriangle = new Sector(leftTriangle, 20, 70, 80, FLOOR_COLOR, CEIL_COLOR, false);
 		lTriangle.setFloorTexture(floorTexture);
 		lTriangle.setCeilingTexture(floorTexture);
@@ -350,7 +352,26 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // Do nothing
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            triggerFiringAnimation();
+        }
+    }
+
+	public static void triggerFiringAnimation() {
+        pistolTexture = Main.pistolFiringTexture; // Switch to firing image
+        map.repaint(); // Repaint to show the new image
+
+        // Set a timer to revert back to the original image after 200 milliseconds
+        Timer timer = new Timer(300, event -> {
+            try {
+                pistolTexture = ImageIO.read(new File("./ressources/pistol.png"));
+            } catch (IOException e) {
+                System.out.println("Error loading texture");
+            }
+            map.repaint(); // Repaint to show the original image
+        });
+        timer.setRepeats(false); // Only execute once
+        timer.start();
     }
 
     @Override
