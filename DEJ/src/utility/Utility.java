@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import main.Main;
 
 public class Utility {
-
 	private static final double TRESHOLD = 0.0001;
 
 	public static boolean isZero(double value){
@@ -32,13 +31,8 @@ public class Utility {
         }
 
         // Check if the segment intersects the FOV boundaries
-        Point leftFOVEndPoint = calculateFOVEndPoint(c, yaw, -halfFOV);
-        Point rightFOVEndPoint = calculateFOVEndPoint(c, yaw, halfFOV);
-
-        Segment leftFOVBoundary = new Segment(c, leftFOVEndPoint, null, null, null, false);
-        Segment rightFOVBoundary = new Segment(c, rightFOVEndPoint, null, null, null, false);
-
-        return boundedIntersection(s, leftFOVBoundary) || boundedIntersection(s, rightFOVBoundary);
+        return boundedIntersection(s, new Segment(c, calculateFOVEndPoint(c, yaw, -halfFOV))) ||
+                boundedIntersection(s, new Segment(c, calculateFOVEndPoint(c, yaw, halfFOV)));
     }
 
 	public static boolean boundedIntersection(Segment s1, Segment s2) {
@@ -62,21 +56,28 @@ public class Utility {
         return (o4 == 0 && onSegment(p2, q1, q2)) || (o3 == 0 && onSegment(p2, p1, q2)) || (o1 == 0 && onSegment(p1, p2, q1)) || (o2 == 0 && onSegment(p1, q2, q1));
 	}
 
+    // To find orientation of ordered triplet (p, q, r).
+    // 0 --> p, q and r are collinear
+    // 1 --> Clockwise
+    // 2 --> Counterclockwise
 	private static int orientation(Point p, Point q, Point r) {
         double val = (q.getY() - p.getY()) * (r.getX() - q.getX()) - (q.getX() - p.getX()) * (r.getY() - q.getY());
         if (isZero(val)) return 0; // collinear
         return (val > 0) ? 1 : 2; // clock or counterclock wise
     }
 
+    // Given three collinear points p, q, r, the function checks if point q lies on line segment 'pr'
     private static boolean onSegment(Point p, Point q, Point r) {
         return q.getX() <= Math.max(p.getX(), r.getX()) && q.getX() >= Math.min(p.getX(), r.getX()) &&
                q.getY() <= Math.max(p.getY(), r.getY()) && q.getY() >= Math.min(p.getY(), r.getY());
     }
 
+    // Returns the distance between two points
 	public static double distance(Point a, Point b) {
 		return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
 	}
 
+    // Returns the distance between a point and a segment
 	public static double distanceToSegment(Point p, Segment s) {
         double x0 = p.getX();
         double y0 = p.getY();
@@ -90,7 +91,7 @@ public class Utility {
 
         return numerator / denominator;
     }
-
+    
 	public static double normalizeAngle(double angle) {
 		angle = angle % 360;
 		if (angle > 180) {
@@ -182,12 +183,43 @@ public class Utility {
 	}
 
     public static Sector findSectorContainingPoint(Point p) {
-        for (Sector sector : Main.map.getMap()) {
-            if (isPointInSector(p, sector)) {
+        for (Sector sector : Main.map.getMap())
+            if (isPointInSector(p, sector))
                 return sector;
+                
+        return null;
+    }
+
+    public static Point calculatePolygonCenter(ArrayList<Point> points) {
+		double sumX = 0;
+		double sumY = 0;
+		int numPoints = points.size();
+	
+		for (Point p : points) {
+			sumX += p.getX();
+			sumY += p.getY();
+		}
+	
+		double centerX = sumX / numPoints;
+		double centerY = sumY / numPoints;
+	
+		return new Point(centerX, centerY);
+	}
+
+    public static double angleFromCenter(Point center, Point p) {
+		return Math.atan2(p.getY() - center.getY(), p.getX() - center.getX());
+	}
+
+    public static boolean isColliding(Point newPos, ArrayList<Segment> segments) {
+        for (Segment segment : segments) {
+			if (!segment.isCollide()) {
+				continue;
+			}
+            if (Utility.boundedIntersection(segment, new Segment(Main.player.getPos(), newPos, null, null, null, false))) {
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
 	public static boolean isPointInSector(Point p, Sector sector) {
@@ -241,4 +273,12 @@ public class Utility {
 
         return p.getX() < intersectionX;
     }
+
+    public static int[] convertIntegers(ArrayList<Integer> integers) {
+		int[] ret = new int[integers.size()];
+		for (int i = 0; i < ret.length; i++) {
+			ret[i] = integers.get(i);
+		}
+		return ret;
+	}
 }

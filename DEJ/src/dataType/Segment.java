@@ -20,6 +20,19 @@ public class Segment {
 	private BufferedImage bottomTexture;
 
 	private boolean collide;
+
+	public Segment (Point a, Point b) {
+		this.a = a;
+		this.b = b;
+		this.originalSegment = this;
+		this.middle = null;
+		this.top = null;
+		this.bottom = null;
+		this.middleTexture = null;
+		this.topTexture = null;
+		this.bottomTexture = null;
+		this.collide = false;
+	}
 	
 	public Segment (Point a, Point b, Color middle, Color top, Color bottom, boolean collide) {
 		this.a = a;
@@ -47,6 +60,37 @@ public class Segment {
 		this.collide = collide;
 	}
 
+	public void rotate(double yawDegrees) {
+        double yawRadians = Math.toRadians(yawDegrees);
+
+        double cosTheta = Math.cos(yawRadians);
+        double sinTheta = Math.sin(yawRadians);
+
+        int newMvtX = (int) Math.round(getXMouvement() * cosTheta - getYMouvement() * sinTheta);
+        int newMvtY = (int) Math.round(getXMouvement() * sinTheta + getYMouvement() * cosTheta);
+
+        this.b = new Point(this.a.getX() + newMvtX, this.a.getY() + newMvtY);
+    }
+	
+	public Point getMiddlePoint() {
+		double middleSegX = Math.min(this.a.getX(), this.b.getX()) + Math.abs((this.a.getX() - this.b.getX())) / 2;
+		double middleSegY = Math.min(this.a.getY(), this.b.getY()) + Math.abs((this.a.getY() - this.b.getY())) / 2;
+		
+		return new Point(middleSegX, middleSegY);
+	}
+
+	public Segment getRootSegment() {
+        Segment root = this;
+        while (root.originalSegment != root) {
+            root = root.originalSegment;
+        }
+        return root;
+    }
+
+	public Segment normal(Point a) {
+		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a, Color.RED, Color.RED, Color.RED, false);
+	}
+
 	public int getFloorHeight() {
 		return s.getFloorHeight();
 	}
@@ -66,36 +110,6 @@ public class Segment {
 	public void setSector(Sector s) {
 		this.s = s;
 	}
-
-	public Segment getRootSegment() {
-        Segment root = this;
-        while (root.originalSegment != root) {
-            root = root.originalSegment;
-        }
-        return root;
-    }
-	
-	public void rotate(double yawDegrees) {
-        double yawRadians = Math.toRadians(yawDegrees);
-
-        double mvtX = getXMouvement();
-        double mvtY = getYMouvement();
-
-        double cosTheta = Math.cos(yawRadians);
-        double sinTheta = Math.sin(yawRadians);
-
-        int newMvtX = (int) Math.round(mvtX * cosTheta - mvtY * sinTheta);
-        int newMvtY = (int) Math.round(mvtX * sinTheta + mvtY * cosTheta);
-
-        this.b = new Point(this.a.getX() + newMvtX, this.a.getY() + newMvtY);
-    }
-	
-	public Point getMiddlePoint() {
-		double middleSegX = Math.min(this.a.getX(), this.b.getX()) + Math.abs((this.a.getX() - this.b.getX())) / 2;
-		double middleSegY = Math.min(this.a.getY(), this.b.getY()) + Math.abs((this.a.getY() - this.b.getY())) / 2;
-		
-		return new Point(middleSegX, middleSegY);
-	}
 	
 	public Point getA() {
 		return a;
@@ -113,32 +127,12 @@ public class Segment {
 		this.a = a;
 	}
 	
-	public Segment normal(Point a) {
-		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a, Color.RED, Color.RED, Color.RED, false);
-	}
-	
 	public double getXMouvement() {
 		return this.b.getX() - this.a.getX();
 	}
 	
 	public double getYMouvement() {
 		return this.b.getY() - this.a.getY();
-	}
-
-	public void up() {
-		this.b.moveUp();
-	}
-
-	public void down() {
-		this.b.moveDown();
-	}
-
-	public void left() {
-		this.b.moveLeft();
-	}
-
-	public void right() {
-		this.b.moveRight();
 	}
 	
 	public double getMaxX() {

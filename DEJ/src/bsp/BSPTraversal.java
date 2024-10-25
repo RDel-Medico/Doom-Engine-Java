@@ -6,17 +6,12 @@ import main.Main;
 import utility.Utility;
 
 public class BSPTraversal {
-	
 	BSPNode root;
 	ArrayList<Integer> idToDraw;
 	
 	public BSPTraversal(BSPNode root) {
 		this.root = root;
 		this.idToDraw = new ArrayList<>();
-	}
-	
-	public ArrayList<Integer> getId() {
-		return this.idToDraw;
 	}
 	
 	public void update() {
@@ -33,12 +28,12 @@ public class BSPTraversal {
 	public void traverse(BSPNode curr) {
 		if (curr == null) return;
 		
-		if (Utility.isInFront(curr.getSplit(), Main.player.pos)) {
+		if (Utility.isInFront(curr.getSplit(), Main.player.getPos())) {
 			traverseWithoutAdd(curr);
 			return;
 		}
 
-		if (!Utility.isWithinFOV(curr.getSplit(), Main.player.pos(), Main.player.getFOV(), Main.player.getYaw())) {
+		if (!Utility.isWithinFOV(curr.getSplit(), Main.player.getPos(), Main.FOV, Main.player.getYaw())) {
 			traverseWithoutAdd(curr);
 			return;
 		}
@@ -46,5 +41,9 @@ public class BSPTraversal {
 		this.traverse(curr.getFront());
 		this.idToDraw.add(curr.getId());
 		this.traverse(curr.getBack());
+	}
+
+	public ArrayList<Integer> getId() {
+		return this.idToDraw;
 	}
 }

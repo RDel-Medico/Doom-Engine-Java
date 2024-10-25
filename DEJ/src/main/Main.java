@@ -36,6 +36,13 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 	public final static int SCREEN_WIDTH = 1500;
 	public final static int SCREEN_HEIGHT = 900;
 
+	public final static int HEIGHT_SCALE = 8;
+
+	public static final double COLLISION_TRESHOLD = 5.0;
+	public static final double MOVE_SPEED = 0.5;
+	public static final double TURN_SPEED = 3.0;
+	public static final double FOV = 90.0;
+
 	public final static Color CEIL_COLOR = Color.RED;
 	public final static Color FLOOR_COLOR = new Color(139, 69, 19);
 	
@@ -270,22 +277,22 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		boolean moving = false;
 
 		if (pressedKeys.contains(KeyEvent.VK_UP) || pressedKeys.contains(KeyEvent.VK_Z)) {
-			player.moveForward(bsp.getSegments());
+			player.move(Camera.Direction.FORWARD, bsp.getSegments());
 			moving = true;
 		}
 
 		if (pressedKeys.contains(KeyEvent.VK_DOWN) || pressedKeys.contains(KeyEvent.VK_S)) {
-			player.moveBackward(bsp.getSegments());
+			player.move(Camera.Direction.BACKWARD, bsp.getSegments());
 			moving = true;
 		}
 
 		if (pressedKeys.contains(KeyEvent.VK_LEFT) || pressedKeys.contains(KeyEvent.VK_Q)) {
-			player.moveRight(bsp.getSegments());
+			player.move(Camera.Direction.LEFT, bsp.getSegments());
 			moving = true;
 		}
 
 		if (pressedKeys.contains(KeyEvent.VK_RIGHT) || pressedKeys.contains(KeyEvent.VK_D)) {
-			player.moveLeft(bsp.getSegments());
+			player.move(Camera.Direction.RIGHT, bsp.getSegments());
 			moving = true;
 		}
 

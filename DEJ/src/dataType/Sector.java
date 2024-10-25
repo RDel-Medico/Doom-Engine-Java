@@ -14,28 +14,27 @@ public class Sector {
 	private Color floorColor;
 	private Color ceilColor;
 
-	private boolean isReversed;
-
 	private BufferedImage ceilingTexture;
 	private BufferedImage floorTexture;
-	
-        @SuppressWarnings("OverridableMethodCallInConstructor")
+
+	private boolean isReversed;
+
 	public Sector(ArrayList<Segment> seg, int floorHeight, int ceilHeight, int ceilEnd, Color floorColor, Color ceilColor, boolean isReversed) {
 		this.shape = seg;
 		this.floorHeight = floorHeight;
 		this.ceilHeight = ceilHeight;
-		this.setSector();
 		this.floorColor = floorColor;
 		this.ceilColor = ceilColor;
 		this.isReversed = isReversed;
 		this.ceilEnd = ceilEnd;
 		this.ceilingTexture = null;
 		this.floorTexture = null;
+		initializeSegments();
 	}
 
-	public void setSector() {
-		for (Segment s : this.shape)
-			s.setSector(this); {
+	private void initializeSegments() {
+		for (Segment s : this.shape) {
+			s.setSector(this);
 		}
 	}
 
@@ -53,7 +52,7 @@ public class Sector {
 
 	public void setSegments(ArrayList<Segment> seg) {
 		this.shape = seg;
-		this.setSector();
+		this.initializeSegments();
 	}
 	
 	public double getMaxX () {

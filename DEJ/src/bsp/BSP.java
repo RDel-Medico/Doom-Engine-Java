@@ -17,8 +17,7 @@ public class BSP {
 		this.map = new ArrayList<>();
 		
 		for (Sector s : m) {
-			ArrayList<Segment> temp = s.getSegments();
-			for (Segment se : temp) {
+			for (Segment se : s.getSegments()) {
 				se.setSector(s);
 				this.map.add(se);
 			}
