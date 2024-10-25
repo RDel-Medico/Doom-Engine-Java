@@ -18,8 +18,10 @@ public class Segment {
 	private BufferedImage middleTexture;
 	private BufferedImage topTexture;
 	private BufferedImage bottomTexture;
+
+	private boolean collide;
 	
-	public Segment (Point a, Point b, Color middle, Color top, Color bottom) {
+	public Segment (Point a, Point b, Color middle, Color top, Color bottom, boolean collide) {
 		this.a = a;
 		this.b = b;
 		this.originalSegment = this;
@@ -29,9 +31,10 @@ public class Segment {
 		this.middleTexture = Main.middleWallTexture;
 		this.topTexture = Main.topWallTexture;
 		this.bottomTexture = Main.bottomWallTexture;
+		this.collide = collide;
 	}
 	
-	public Segment (double mvtX, double mvtY, Point a, Color middle, Color top, Color bottom) {
+	public Segment (double mvtX, double mvtY, Point a, Color middle, Color top, Color bottom, boolean collide) {
 		this.a = new Point(a.getX() , a.getY());
 		this.b = new Point(a.getX() + mvtX, a.getY() + mvtY);
 		this.originalSegment = this;
@@ -41,6 +44,7 @@ public class Segment {
 		this.middleTexture = Main.middleWallTexture;
 		this.topTexture = Main.topWallTexture;
 		this.bottomTexture = Main.bottomWallTexture;
+		this.collide = collide;
 	}
 
 	public int getFloorHeight() {
@@ -110,7 +114,7 @@ public class Segment {
 	}
 	
 	public Segment normal(Point a) {
-		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a, Color.RED, Color.RED, Color.RED);
+		return new Segment(-this.getYMouvement() / 10, this.getXMouvement() / 10, a, Color.RED, Color.RED, Color.RED, false);
 	}
 	
 	public double getXMouvement() {
@@ -207,5 +211,13 @@ public class Segment {
 
     public void setBottomTexture(BufferedImage bottomTexture) {
         this.bottomTexture = bottomTexture;
+    }
+
+    public boolean isCollide() {
+        return collide;
+    }
+
+    public void setCollide(boolean collide) {
+        this.collide = collide;
     }
 }

@@ -152,91 +152,91 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		Point ab = new Point(90, 110);
 
 		ArrayList<Segment> leftStart = new ArrayList<>();
-		leftStart.add(new Segment(e, a, Color.GREEN, Color.ORANGE, Color.WHITE));
-		leftStart.add(new Segment(f, e, Color.GREEN, Color.ORANGE, Color.WHITE));
-		leftStart.add(new Segment(b, f, null, null, null));
-		leftStart.add(new Segment(a, b, Color.GREEN, Color.ORANGE, Color.WHITE));
+		leftStart.add(new Segment(e, a, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		leftStart.add(new Segment(f, e, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		leftStart.add(new Segment(b, f, null, null, null, false));
+		leftStart.add(new Segment(a, b, Color.GREEN, Color.ORANGE, Color.WHITE, true));
 
 		ArrayList<Segment> middleStart = new ArrayList<>();
-		middleStart.add(new Segment(f, b, null, null, null));
-		middleStart.add(new Segment(g, f, null, null, null));
-		middleStart.add(new Segment(c, g, null, null, null));
-		middleStart.add(new Segment(b, c, Color.GREEN, Color.ORANGE, Color.WHITE));
+		middleStart.add(new Segment(f, b, null, null, null, false));
+		middleStart.add(new Segment(g, f, null, null, null, false));
+		middleStart.add(new Segment(c, g, null, null, null, false));
+		middleStart.add(new Segment(b, c, Color.GREEN, Color.ORANGE, Color.WHITE, true));
 
 		ArrayList<Segment> rightStart = new ArrayList<>();
-		rightStart.add(new Segment(g, c, null, null, null));
-		rightStart.add(new Segment(h, g, Color.GREEN, Color.ORANGE, Color.WHITE));
-		rightStart.add(new Segment(d, h, Color.GREEN, Color.ORANGE, Color.WHITE));
-		rightStart.add(new Segment(c, d, Color.GREEN, Color.ORANGE, Color.WHITE));
+		rightStart.add(new Segment(g, c, null, null, null, false));
+		rightStart.add(new Segment(h, g, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		rightStart.add(new Segment(d, h, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		rightStart.add(new Segment(c, d, Color.GREEN, Color.ORANGE, Color.WHITE, true));
 
 		ArrayList<Segment> hallway = new ArrayList<>();
-		Segment temp = new Segment(j, k, null, Color.ORANGE, null);
+		Segment temp = new Segment(j, k, null, Color.ORANGE, null, false);
 		temp.setTopTexture(middleWallTexture);
 		hallway.add(temp);
-		hallway.add(new Segment(g, k, Color.GREEN, null, Color.WHITE));
-		Segment temp2 = new Segment(g, f, null, Color.ORANGE, null);
+		hallway.add(new Segment(g, k, Color.GREEN, null, Color.WHITE, true));
+		Segment temp2 = new Segment(g, f, null, Color.ORANGE, null, false);
 		temp2.setTopTexture(middleWallTexture);
 		hallway.add(temp2);
-		hallway.add(new Segment(j, f, Color.GREEN, null, Color.WHITE));
+		hallway.add(new Segment(j, f, Color.GREEN, null, Color.WHITE, true));
 		Sector hall = new Sector(hallway, 0, 70, 80, null, CEIL_COLOR, false);
 		hall.setCeilingTexture(topWallTexture);
 		level.add(hall);
 
 		ArrayList<Segment> leftRoom = new ArrayList<>();
-		leftRoom.add(new Segment(y, i, Color.GREEN, Color.CYAN, Color.WHITE));
-		leftRoom.add(new Segment(z, y, Color.GREEN, Color.CYAN, Color.WHITE));
-		leftRoom.add(new Segment(j, z, null, null, null));
-		leftRoom.add(new Segment(i, j, Color.GREEN, Color.CYAN, Color.WHITE));
+		leftRoom.add(new Segment(y, i, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		leftRoom.add(new Segment(z, y, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		leftRoom.add(new Segment(j, z, null, null, null, false));
+		leftRoom.add(new Segment(i, j, Color.GREEN, Color.CYAN, Color.WHITE, true));
 
 		ArrayList<Segment> middleRoom = new ArrayList<>();
-		middleRoom.add(new Segment(z, j, null, null, null));
-		middleRoom.add(new Segment(aa, z, Color.GREEN, Color.CYAN, Color.WHITE));
-		middleRoom.add(new Segment(k, aa, null, null, null));
-		middleRoom.add(new Segment(j, k, null, null, null));
+		middleRoom.add(new Segment(z, j, null, null, null, false));
+		middleRoom.add(new Segment(aa, z, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		middleRoom.add(new Segment(k, aa, null, null, null, false));
+		middleRoom.add(new Segment(j, k, null, null, null, false));
 
 		ArrayList<Segment> rightRoom = new ArrayList<>();
-		rightRoom.add(new Segment(aa, k, null, null, null));
-		rightRoom.add(new Segment(ab, aa, Color.GREEN, Color.CYAN, Color.WHITE));
-		rightRoom.add(new Segment(l, ab, Color.GREEN, Color.CYAN, Color.WHITE));
-		rightRoom.add(new Segment(k, l, Color.GREEN, Color.CYAN, Color.WHITE));
+		rightRoom.add(new Segment(aa, k, null, null, null, false));
+		rightRoom.add(new Segment(ab, aa, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		rightRoom.add(new Segment(l, ab, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		rightRoom.add(new Segment(k, l, Color.GREEN, Color.CYAN, Color.WHITE, true));
 
 		ArrayList<Segment> leftTriangle = new ArrayList<>();
-		leftTriangle.add(new Segment(s, t, null, Color.CYAN, Color.WHITE));
-		leftTriangle.add(new Segment(t, m, null, Color.CYAN, Color.WHITE));
-		leftTriangle.add(new Segment(m, s, null, Color.CYAN, Color.WHITE));
+		leftTriangle.add(new Segment(s, t, null, Color.CYAN, Color.WHITE, false));
+		leftTriangle.add(new Segment(t, m, null, Color.CYAN, Color.WHITE, false));
+		leftTriangle.add(new Segment(m, s, null, Color.CYAN, Color.WHITE, false));
 		Sector lTriangle = new Sector(leftTriangle, 20, 70, 80, FLOOR_COLOR, CEIL_COLOR, false);
 		lTriangle.setFloorTexture(floorTexture);
 		lTriangle.setCeilingTexture(floorTexture);
 		level.add(lTriangle);
 
 		ArrayList<Segment> rightTriangle = new ArrayList<>();
-		rightTriangle.add(new Segment(w, x, Color.MAGENTA, Color.CYAN, Color.WHITE));
-		rightTriangle.add(new Segment(x, p, Color.MAGENTA, Color.CYAN, Color.WHITE));
-		rightTriangle.add(new Segment(p, w, Color.MAGENTA, Color.CYAN, Color.WHITE));
+		rightTriangle.add(new Segment(w, x, Color.MAGENTA, Color.CYAN, Color.WHITE, true));
+		rightTriangle.add(new Segment(x, p, Color.MAGENTA, Color.CYAN, Color.WHITE, true));
+		rightTriangle.add(new Segment(p, w, Color.MAGENTA, Color.CYAN, Color.WHITE, true));
 
 		ArrayList<Segment> firstStep = new ArrayList<>();
-		firstStep.add(new Segment(q, r, null, null, Color.WHITE));
-		firstStep.add(new Segment(r, o, null, null, Color.WHITE));
-		firstStep.add(new Segment(o, n, null, null, Color.WHITE));
-		firstStep.add(new Segment(n, q, null, null, Color.WHITE));
+		firstStep.add(new Segment(q, r, null, null, Color.WHITE, false));
+		firstStep.add(new Segment(r, o, null, null, Color.WHITE, false));
+		firstStep.add(new Segment(o, n, null, null, Color.WHITE, false));
+		firstStep.add(new Segment(n, q, null, null, Color.WHITE, false));
 		Sector fStep = new Sector(firstStep, 10, 80, 80, FLOOR_COLOR, null, false);
 		fStep.setFloorTexture(floorTexture);
 		level.add(fStep);
 
 		ArrayList<Segment> secondStep = new ArrayList<>();
-		secondStep.add(new Segment(u, v, null, null, Color.WHITE));
-		secondStep.add(new Segment(v, r, null, null, Color.WHITE));
-		secondStep.add(new Segment(r, q, null, null, Color.WHITE));
-		secondStep.add(new Segment(q, u, null, null, Color.WHITE));
+		secondStep.add(new Segment(u, v, null, null, Color.WHITE, false));
+		secondStep.add(new Segment(v, r, null, null, Color.WHITE, false));
+		secondStep.add(new Segment(r, q, null, null, Color.WHITE, false));
+		secondStep.add(new Segment(q, u, null, null, Color.WHITE, false));
 		Sector sStep = new Sector(secondStep, 20, 80, 80, FLOOR_COLOR, null, false);
 		sStep.setFloorTexture(floorTexture);
 		level.add(sStep);
 
 		ArrayList<Segment> thirdStep = new ArrayList<>();
-		thirdStep.add(new Segment(z, aa, null, null, Color.WHITE));
-		thirdStep.add(new Segment(aa, v, null, null, Color.WHITE));
-		thirdStep.add(new Segment(v, u, null, null, Color.WHITE));
-		thirdStep.add(new Segment(u, z, null, null, Color.WHITE));
+		thirdStep.add(new Segment(z, aa, null, null, Color.WHITE, false));
+		thirdStep.add(new Segment(aa, v, null, null, Color.WHITE, false));
+		thirdStep.add(new Segment(v, u, null, null, Color.WHITE, false));
+		thirdStep.add(new Segment(u, z, null, null, Color.WHITE, false));
 		Sector tStep = new Sector(thirdStep, 30, 80, 80, FLOOR_COLOR, null, false);
 		tStep.setFloorTexture(floorTexture);
 		level.add(tStep);
@@ -268,22 +268,22 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		boolean moving = false;
 
 		if (pressedKeys.contains(KeyEvent.VK_UP) || pressedKeys.contains(KeyEvent.VK_Z)) {
-			player.moveForward();
+			player.moveForward(bsp.getSegments());
 			moving = true;
 		}
 
 		if (pressedKeys.contains(KeyEvent.VK_DOWN) || pressedKeys.contains(KeyEvent.VK_S)) {
-			player.moveBackward();
+			player.moveBackward(bsp.getSegments());
 			moving = true;
 		}
 
 		if (pressedKeys.contains(KeyEvent.VK_LEFT) || pressedKeys.contains(KeyEvent.VK_Q)) {
-			player.moveRight();
+			player.moveRight(bsp.getSegments());
 			moving = true;
 		}
 
 		if (pressedKeys.contains(KeyEvent.VK_RIGHT) || pressedKeys.contains(KeyEvent.VK_D)) {
-			player.moveLeft();
+			player.moveLeft(bsp.getSegments());
 			moving = true;
 		}
 

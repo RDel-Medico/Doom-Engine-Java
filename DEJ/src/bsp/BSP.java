@@ -65,10 +65,10 @@ public class BSP {
 			
 			if (Utility.intersection(splitter, s.get(i))) {
 				Segment temp;
-				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA(), Color.RED, Color.RED, Color.RED), splitter) > 0) {
-					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
+				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA(), Color.RED, Color.RED, Color.RED, false), splitter) > 0) {
+					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
 				} else {
-					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
+					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
 				}
 				temp.setSector(s.get(i).getSector());
 				temp.setOriginalSegment(s.get(i).getRootSegment());
@@ -89,10 +89,10 @@ public class BSP {
 		for (int i = 1; i < s.size(); i++) {
 			if (Utility.intersection(splitter, s.get(i))) {
 				Segment temp;
-				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA(), Color.RED, Color.RED, Color.RED), splitter) > 0) {
-					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
+				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA(), Color.RED, Color.RED, Color.RED, false), splitter) > 0) {
+					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
 				} else {
-					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
+					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
 				}
 				temp.setSector(s.get(i).getSector());
 				temp.setOriginalSegment(s.get(i).getRootSegment());

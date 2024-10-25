@@ -2,6 +2,8 @@ package player;
 
 import dataType.Point;
 import dataType.Sector;
+import dataType.Segment;
+import java.util.ArrayList;
 import main.Main;
 import utility.Utility;
 
@@ -10,6 +12,8 @@ public class Camera {
 	private static final double MOVE_SPEED = 0.5;
 	private static final double TURN_SPEED = 3.0;
 	private static final double FOV = 90.0;
+
+	private static final double COLLISION_TRESHOLD = 5.0;
 
 	public Point pos;
 	private double height;
@@ -43,37 +47,65 @@ public class Camera {
 		return pos;
 	}
 
-	public void moveForward() {
+	private boolean isColliding(Point newPos, ArrayList<Segment> segments) {
+        for (Segment segment : segments) {
+			if (!segment.isCollide()) {
+				continue;
+			}
+            if (Utility.boundedIntersection(segment, new Segment(Main.player.pos(), newPos, null, null, null, false))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void moveForward(ArrayList<Segment> segments) {
         double angle = Math.toRadians(yaw);
         double deltaX = MOVE_SPEED * Math.cos(angle);
-		double deltaY = MOVE_SPEED * Math.sin(angle);
-        pos.setX(pos.getX() + deltaX);
-        pos.setY(pos.getY() + deltaY);
+        double deltaY = MOVE_SPEED * Math.sin(angle);
+        Point newPos = new Point(pos.getX() + deltaX, pos.getY() + deltaY);
+		Point newPosFar = new Point(pos.getX() + deltaX * COLLISION_TRESHOLD, pos.getY() + deltaY * COLLISION_TRESHOLD);
+        if (!isColliding(newPosFar, segments)) {
+            pos.setX(newPos.getX());
+            pos.setY(newPos.getY());
+        }
     }
 
-    public void moveBackward() {
+    public void moveBackward(ArrayList<Segment> segments) {
         double angle = Math.toRadians(yaw);
-		double deltaX = MOVE_SPEED * Math.cos(angle);
-		double deltaY = MOVE_SPEED * Math.sin(angle);
-        pos.setX(pos.getX() - deltaX);
-        pos.setY(pos.getY() - deltaY);
+        double deltaX = MOVE_SPEED * Math.cos(angle);
+        double deltaY = MOVE_SPEED * Math.sin(angle);
+        Point newPos = new Point(pos.getX() - deltaX, pos.getY() - deltaY);
+		Point newPosFar = new Point(pos.getX() - deltaX * COLLISION_TRESHOLD, pos.getY() - deltaY * COLLISION_TRESHOLD);
+        if (!isColliding(newPosFar, segments)) {
+            pos.setX(newPos.getX());
+            pos.setY(newPos.getY());
+        }
     }
 
-	public void moveLeft() {
-		double angle = Math.toRadians(yaw + 90);
-		double deltaX = MOVE_SPEED * Math.cos(angle);
-		double deltaY = MOVE_SPEED * Math.sin(angle);
-		pos.setX(pos.getX() + deltaX);
-		pos.setY(pos.getY() + deltaY);
-	}
+    public void moveLeft(ArrayList<Segment> segments) {
+        double angle = Math.toRadians(yaw + 90);
+        double deltaX = MOVE_SPEED * Math.cos(angle);
+        double deltaY = MOVE_SPEED * Math.sin(angle);
+        Point newPos = new Point(pos.getX() + deltaX, pos.getY() + deltaY);
+		Point newPosFar = new Point(pos.getX() + deltaX * COLLISION_TRESHOLD, pos.getY() + deltaY * COLLISION_TRESHOLD);
+        if (!isColliding(newPosFar, segments)) {
+            pos.setX(newPos.getX());
+            pos.setY(newPos.getY());
+        }
+    }
 
-	public void moveRight() {
-		double angle = Math.toRadians(yaw - 90);
-		double deltaX = MOVE_SPEED * Math.cos(angle);
-		double deltaY = MOVE_SPEED * Math.sin(angle);
-		pos.setX(pos.getX() + deltaX);
-		pos.setY(pos.getY() + deltaY);
-	}
+    public void moveRight(ArrayList<Segment> segments) {
+        double angle = Math.toRadians(yaw - 90);
+        double deltaX = MOVE_SPEED * Math.cos(angle);
+        double deltaY = MOVE_SPEED * Math.sin(angle);
+        Point newPos = new Point(pos.getX() + deltaX, pos.getY() + deltaY);
+		Point newPosFar = new Point(pos.getX() + deltaX * COLLISION_TRESHOLD, pos.getY() + deltaY * COLLISION_TRESHOLD);
+        if (!isColliding(newPosFar, segments)) {
+            pos.setX(newPos.getX());
+            pos.setY(newPos.getY());
+        }
+    }
 
 	public void turnLeft() {
 		yaw -= TURN_SPEED;

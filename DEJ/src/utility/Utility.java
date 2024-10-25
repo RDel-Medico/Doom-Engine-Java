@@ -35,8 +35,8 @@ public class Utility {
         Point leftFOVEndPoint = calculateFOVEndPoint(c, yaw, -halfFOV);
         Point rightFOVEndPoint = calculateFOVEndPoint(c, yaw, halfFOV);
 
-        Segment leftFOVBoundary = new Segment(c, leftFOVEndPoint, null, null, null);
-        Segment rightFOVBoundary = new Segment(c, rightFOVEndPoint, null, null, null);
+        Segment leftFOVBoundary = new Segment(c, leftFOVEndPoint, null, null, null, false);
+        Segment rightFOVBoundary = new Segment(c, rightFOVEndPoint, null, null, null, false);
 
         return boundedIntersection(s, leftFOVBoundary) || boundedIntersection(s, rightFOVBoundary);
     }
@@ -113,11 +113,11 @@ public class Utility {
 	}
 
 	public static boolean isCollinear(Segment s, Point c) {
-		return isZero(crossProduct2D(s, new Segment(s.getA(), c, null, null, null)));
+		return isZero(crossProduct2D(s, new Segment(s.getA(), c, null, null, null, false)));
 	}
 
 	public static boolean isInFront(Segment s, Point c, double yaw) {
-		return crossProduct2D(s, new Segment(s.getA(), c, null, null, null)) < 0;
+		return crossProduct2D(s, new Segment(s.getA(), c, null, null, null, false)) < 0;
 	}
 
 	public static double crossProduct2D (Segment ab, Segment cd) {
@@ -129,7 +129,7 @@ public class Utility {
 	}
 	
 	public static boolean isInFront(Segment s, Point c) {
-		return crossProduct2D(s, new Segment(s.getA(), c, null, null, null)) < 0;
+		return crossProduct2D(s, new Segment(s.getA(), c, null, null, null, false)) < 0;
 	}
 	
 	public static boolean isInFront(Segment s1, Segment s2) {
@@ -141,14 +141,14 @@ public class Utility {
 	}
 	
 	public static boolean isCollinear (Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null, false), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		return isZero(num) && isZero(den);
 	}
 	
 	public static boolean intersection(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null, false), s1);
 		double den = crossProduct2D(s1, s2);
 		if (0.0 < num / den && num / den < 1.0) {
 			return true;
@@ -157,7 +157,7 @@ public class Utility {
 	}
 	
 	public static Point intersectionPoint(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null, false), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		double t = num / den;
@@ -168,14 +168,14 @@ public class Utility {
 	}
 	
 	public static boolean collisionOnFront(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null, false), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		return num < 0 || (isZero(num) && den > 0);
 	}
 	
 	public static boolean collisionOnBack(Segment s1, Segment s2) {
-		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null), s1);
+		double num = crossProduct2D(new Segment(s1.getA(), s2.getA(), null, null, null, false), s1);
 		double den = crossProduct2D(s1, s2);
 		
 		return num > 0 || (isZero(num) && den < 0);
