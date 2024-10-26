@@ -8,26 +8,28 @@ import utility.Utility;
 public class BSPTraversal {
 	BSPNode root;
 	ArrayList<Integer> idToDraw;
-	
+
 	public BSPTraversal(BSPNode root) {
 		this.root = root;
 		this.idToDraw = new ArrayList<>();
 	}
-	
+
 	public void update() {
 		this.idToDraw.clear();
 		this.traverse(root);
 	}
 
 	public void traverseWithoutAdd(BSPNode curr) {
-		if (curr == null) return;
+		if (curr == null)
+			return;
 		this.traverse(curr.getBack());
 		this.traverse(curr.getFront());
 	}
 
 	public void traverse(BSPNode curr) {
-		if (curr == null) return;
-		
+		if (curr == null)
+			return;
+
 		if (Utility.isInFront(curr.getSplit(), Main.player.getPos())) {
 			traverseWithoutAdd(curr);
 			return;

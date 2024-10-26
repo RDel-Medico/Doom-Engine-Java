@@ -1,6 +1,5 @@
 package main;
 
-
 import bsp.BSP;
 import bsp.BSPTraversal;
 import dataType.Point;
@@ -30,8 +29,10 @@ import player.Camera;
 
 public class Main implements KeyListener, MouseMotionListener, MouseListener {
 	public static final boolean DRAW_TEXTURE = true;
-	public static final boolean DRAW_2D = false;
-	public static final boolean DRAW_3D = true;
+	public static final boolean DRAW_2D = true;
+	public static final boolean DRAW_3D = false;
+	public static final boolean DRAW_3D_FLOOR = false;
+	public static final boolean DRAW_3D_CEIL = false;
 
 	public final static int SCREEN_WIDTH = 1500;
 	public final static int SCREEN_HEIGHT = 900;
@@ -45,26 +46,31 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 
 	public final static Color CEIL_COLOR = Color.RED;
 	public final static Color FLOOR_COLOR = new Color(139, 69, 19);
-	
+
 	public final static Point DISPLAY_TOP_LEFT = new Point(100, 100);
 	public final static Point DISPLAY_BOTTOM_RIGHT = new Point(1400, 800);
-	
+
+	private static final int CENTER_X = SCREEN_WIDTH / 2;
+	private static final int CENTER_Y = SCREEN_HEIGHT / 2;
+
+	public static double weaponX = SCREEN_WIDTH / 2;
+	public static double weaponY = SCREEN_HEIGHT - 150;
+	public static double weaponTime = 0;
+	public static final double WEAPON_AMPLITUDE = 30;
+	public static final double WEAPON_FREQUENCY = 0.2;
+
+	public static final double BOBBING_AMPLITUDE = 5.0;
+	public static final double BOBBING_FREQUENCY = 0.4;
+
+	public static final int FLOOR_HEIGHT = 0;
+	public static final int CEIL_HEIGHT = 80;
+	public static final int CEIL_END = 80;
+
 	public static Camera player;
 	public static Map map;
 	public static BSPTraversal bspT;
 	public static BSP bsp;
-
-	private static final int CENTER_X = SCREEN_WIDTH / 2;
-	private static final int CENTER_Y = SCREEN_HEIGHT / 2;
 	private static Robot robot;
-
-	static {
-        try {
-            robot = new Robot();
-        } catch (AWTException | SecurityException e) {
-            System.out.println("Error creating robot");
-        }
-    }
 
 	public static BufferedImage middleWallTexture = null;
 	public static BufferedImage topWallTexture = null;
@@ -76,59 +82,54 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 	public static BufferedImage pistolTexture = null;
 	public static BufferedImage pistolFiringTexture = null;
 
-	public static double weaponX = SCREEN_WIDTH / 2;
-	public static double weaponY = SCREEN_HEIGHT - 150;
-	public static double weaponTime = 0;
-	public static final double WEAPON_AMPLITUDE = 30;
-	public static final double WEAPON_FREQUENCY = 0.2;
+	public static Color bottomWallColor = Color.DARK_GRAY;
+	public static Color middleWallColor = Color.GRAY;
+	public static Color topWallColor = Color.LIGHT_GRAY;
 
-	public static final double BOBBING_AMPLITUDE = 5.0;
-	public static final double BOBBING_FREQUENCY = 0.4;
 	public static double bobbingTime = 0;
 	public static double baseHeight;
 
-	
-
-        @SuppressWarnings("FieldMayBeFinal")
 	private static Set<Integer> pressedKeys = new HashSet<>();
+
+	static {
+		try {
+			robot = new Robot();
+		} catch (AWTException | SecurityException e) {
+			System.out.println("Error creating robot");
+		}
+	}
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("Doom Engine");
-		
 		frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		setup();
-		
+
+		setupGame();
+
 		frame.add(map);
-		
 		frame.addKeyListener(new Main());
 		frame.addMouseMotionListener(new Main());
 		frame.addMouseListener(new Main());
+		frame.setVisible(true);
 
 		hideCursor(frame);
 
-		frame.setVisible(true);
+		Timer timer = new Timer(16, event -> update());
+		timer.start();
 	}
-	
-	public static void setup() {
-		if (DRAW_TEXTURE) {
-			try {
-				middleWallTexture = ImageIO.read(new File ("./ressources/wall.png"));
-				topWallTexture = ImageIO.read(new File ("./ressources/top.png"));
-				bottomWallTexture = ImageIO.read(new File ("./ressources/bottom.png"));
-				ceilingTexture = ImageIO.read(new File ("./ressources/ceiling.png"));
-				floorTexture = ImageIO.read(new File ("./ressources/floor.png"));
-				skyTexture = ImageIO.read(new File ("./ressources/background.png"));
-				levelFloorTexture = ImageIO.read(new File ("./ressources/floorLevel.png"));
-				pistolTexture = ImageIO.read(new File ("./ressources/pistol.png"));
-				pistolFiringTexture = ImageIO.read(new File ("./ressources/pistolFiring.png"));
-			} catch (IOException e) {
-				System.out.println("Error loading texture");
-			}
-		}
-		
+
+	public static void setupGame() {
+		loadTexture();
+		createLevel();
+		createPlayer();
+		updateMap();
+	}
+
+	private static void createPlayer() {
+		player = Camera.getSelf();
+	}
+
+	private static void createLevel() {
 		ArrayList<Sector> level = new ArrayList<>();
 
 		Point a = new Point(20, 0);
@@ -161,119 +162,127 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		Point ab = new Point(90, 110);
 
 		ArrayList<Segment> leftStart = new ArrayList<>();
-		leftStart.add(new Segment(e, a, Color.GREEN, Color.ORANGE, Color.WHITE, true));
-		leftStart.add(new Segment(f, e, Color.GREEN, Color.ORANGE, Color.WHITE, true));
-		leftStart.add(new Segment(b, f, null, null, null, false));
-		leftStart.add(new Segment(a, b, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		leftStart.add(new Segment(e, a));
+		leftStart.add(new Segment(f, e));
+		leftStart.add(new Segment(b, f, null, null, null, null, null, null));
+		leftStart.add(new Segment(a, b));
 
 		ArrayList<Segment> middleStart = new ArrayList<>();
-		middleStart.add(new Segment(f, b, null, null, null, false));
-		middleStart.add(new Segment(g, f, null, null, null, false));
-		middleStart.add(new Segment(c, g, null, null, null, false));
-		middleStart.add(new Segment(b, c, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		middleStart.add(new Segment(f, b, null, null, null, null, null, null));
+		middleStart.add(new Segment(g, f, null, Main.middleWallColor, null, null, null, Main.middleWallTexture));
+		middleStart.add(new Segment(c, g, null, null, null, null, null, null));
+		middleStart.add(new Segment(b, c));
 
 		ArrayList<Segment> rightStart = new ArrayList<>();
-		rightStart.add(new Segment(g, c, null, null, null, false));
-		rightStart.add(new Segment(h, g, Color.GREEN, Color.ORANGE, Color.WHITE, true));
-		rightStart.add(new Segment(d, h, Color.GREEN, Color.ORANGE, Color.WHITE, true));
-		rightStart.add(new Segment(c, d, Color.GREEN, Color.ORANGE, Color.WHITE, true));
+		rightStart.add(new Segment(g, c, null, null, null, null, null, null));
+		rightStart.add(new Segment(h, g));
+		rightStart.add(new Segment(d, h));
+		rightStart.add(new Segment(c, d));
 
 		ArrayList<Segment> hallway = new ArrayList<>();
-		Segment temp = new Segment(j, k, null, Color.ORANGE, null, false);
-		temp.setTopTexture(middleWallTexture);
-		hallway.add(temp);
-		hallway.add(new Segment(g, k, Color.GREEN, null, Color.WHITE, true));
-		Segment temp2 = new Segment(g, f, null, Color.ORANGE, null, false);
-		temp2.setTopTexture(middleWallTexture);
-		hallway.add(temp2);
-		hallway.add(new Segment(j, f, Color.GREEN, null, Color.WHITE, true));
-		Sector hall = new Sector(hallway, 0, 70, 80, null, CEIL_COLOR, false);
-		hall.setCeilingTexture(topWallTexture);
-		level.add(hall);
+		hallway.add(new Segment(j, k, null, Main.middleWallColor, null, null, null, Main.middleWallTexture));
+		hallway.add(new Segment(g, k, Main.middleWallColor, null, null, null, Main.middleWallTexture, null));
+		hallway.add(new Segment(g, f, null, Main.middleWallColor, null, null, null, Main.middleWallTexture));
+		hallway.add(new Segment(j, f, Main.middleWallColor, null, null, null, Main.middleWallTexture, null));
 
 		ArrayList<Segment> leftRoom = new ArrayList<>();
-		leftRoom.add(new Segment(y, i, Color.GREEN, Color.CYAN, Color.WHITE, true));
-		leftRoom.add(new Segment(z, y, Color.GREEN, Color.CYAN, Color.WHITE, true));
-		leftRoom.add(new Segment(j, z, null, null, null, false));
-		leftRoom.add(new Segment(i, j, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		leftRoom.add(new Segment(y, i));
+		leftRoom.add(new Segment(z, y));
+		leftRoom.add(new Segment(j, z, null, null, null, null, null, null));
+		leftRoom.add(new Segment(i, j));
 
 		ArrayList<Segment> middleRoom = new ArrayList<>();
-		middleRoom.add(new Segment(z, j, null, null, null, false));
-		middleRoom.add(new Segment(aa, z, Color.GREEN, Color.CYAN, Color.WHITE, true));
-		middleRoom.add(new Segment(k, aa, null, null, null, false));
-		middleRoom.add(new Segment(j, k, null, null, null, false));
+		middleRoom.add(new Segment(z, j, null, null, null, null, null, null));
+		middleRoom.add(new Segment(aa, z));
+		middleRoom.add(new Segment(k, aa, null, null, null, null, null, null));
+		middleRoom.add(new Segment(j, k, null, null, null, null, null, null));
 
 		ArrayList<Segment> rightRoom = new ArrayList<>();
-		rightRoom.add(new Segment(aa, k, null, null, null, false));
-		rightRoom.add(new Segment(ab, aa, Color.GREEN, Color.CYAN, Color.WHITE, true));
-		rightRoom.add(new Segment(l, ab, Color.GREEN, Color.CYAN, Color.WHITE, true));
-		rightRoom.add(new Segment(k, l, Color.GREEN, Color.CYAN, Color.WHITE, true));
+		rightRoom.add(new Segment(aa, k, null, null, null, null, null, null));
+		rightRoom.add(new Segment(ab, aa));
+		rightRoom.add(new Segment(l, ab));
+		rightRoom.add(new Segment(k, l));
 
 		ArrayList<Segment> leftTriangle = new ArrayList<>();
-		leftTriangle.add(new Segment(s, t, null, Color.CYAN, Color.WHITE, true));
-		leftTriangle.add(new Segment(t, m, null, Color.CYAN, Color.WHITE, true));
-		leftTriangle.add(new Segment(m, s, null, Color.CYAN, Color.WHITE, true));
-		Sector lTriangle = new Sector(leftTriangle, 20, 70, 80, FLOOR_COLOR, CEIL_COLOR, false);
-		lTriangle.setFloorTexture(floorTexture);
-		lTriangle.setCeilingTexture(floorTexture);
-		level.add(lTriangle);
+		leftTriangle.add(new Segment(s, t, null, Main.topWallColor, Main.bottomWallColor, Main.bottomWallTexture, null,
+				Main.topWallTexture));
+		leftTriangle.add(new Segment(t, m, null, Main.topWallColor, Main.bottomWallColor, Main.bottomWallTexture, null,
+				Main.topWallTexture));
+		leftTriangle.add(new Segment(m, s, null, Main.topWallColor, Main.bottomWallColor, Main.bottomWallTexture, null,
+				Main.topWallTexture));
 
 		ArrayList<Segment> rightTriangle = new ArrayList<>();
-		rightTriangle.add(new Segment(w, x, Color.MAGENTA, Color.CYAN, Color.WHITE, true));
-		rightTriangle.add(new Segment(x, p, Color.MAGENTA, Color.CYAN, Color.WHITE, true));
-		rightTriangle.add(new Segment(p, w, Color.MAGENTA, Color.CYAN, Color.WHITE, true));
+		rightTriangle.add(new Segment(w, x));
+		rightTriangle.add(new Segment(x, p));
+		rightTriangle.add(new Segment(p, w));
 
 		ArrayList<Segment> firstStep = new ArrayList<>();
-		firstStep.add(new Segment(q, r, null, null, Color.WHITE, false));
-		firstStep.add(new Segment(r, o, null, null, Color.WHITE, false));
-		firstStep.add(new Segment(o, n, null, null, Color.WHITE, false));
-		firstStep.add(new Segment(n, q, null, null, Color.WHITE, false));
-		Sector fStep = new Sector(firstStep, 10, 80, 80, FLOOR_COLOR, null, false);
-		fStep.setFloorTexture(floorTexture);
-		level.add(fStep);
+		firstStep.add(new Segment(q, r, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		firstStep.add(new Segment(r, o, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		firstStep.add(new Segment(o, n, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		firstStep.add(new Segment(n, q, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
 
 		ArrayList<Segment> secondStep = new ArrayList<>();
-		secondStep.add(new Segment(u, v, null, null, Color.WHITE, false));
-		secondStep.add(new Segment(v, r, null, null, Color.WHITE, false));
-		secondStep.add(new Segment(r, q, null, null, Color.WHITE, false));
-		secondStep.add(new Segment(q, u, null, null, Color.WHITE, false));
-		Sector sStep = new Sector(secondStep, 20, 80, 80, FLOOR_COLOR, null, false);
-		sStep.setFloorTexture(floorTexture);
-		level.add(sStep);
+		secondStep.add(new Segment(u, v, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		secondStep.add(new Segment(v, r, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		secondStep.add(new Segment(r, q, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		secondStep.add(new Segment(q, u, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
 
 		ArrayList<Segment> thirdStep = new ArrayList<>();
-		thirdStep.add(new Segment(z, aa, null, null, Color.WHITE, false));
-		thirdStep.add(new Segment(aa, v, null, null, Color.WHITE, false));
-		thirdStep.add(new Segment(v, u, null, null, Color.WHITE, false));
-		thirdStep.add(new Segment(u, z, null, null, Color.WHITE, false));
-		Sector tStep = new Sector(thirdStep, 30, 80, 80, FLOOR_COLOR, null, false);
-		tStep.setFloorTexture(floorTexture);
-		level.add(tStep);
+		thirdStep.add(new Segment(z, aa, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		thirdStep.add(new Segment(aa, v, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		thirdStep.add(new Segment(v, u, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
+		thirdStep.add(new Segment(u, z, null, null, Main.bottomWallColor, Main.bottomWallTexture, null, null));
 
-		level.add(new Sector(leftStart, 0, 80, 80, null, null, true));
-		level.add(new Sector(middleStart, 0, 80, 80, null, null, true));
-		level.add(new Sector(rightStart, 0, 80, 80, null, null, true));
-		level.add(new Sector(leftRoom, 0, 80, 80, null, null, true));
-		level.add(new Sector(middleRoom, 0, 80, 80, null, null, true));
-		level.add(new Sector(rightRoom, 0, 80, 80, null, null, true));
-		level.add(new Sector(rightTriangle, 0, 80, 80, null, null, false));
-		
+		level.add(new Sector(leftTriangle, 20, 70, 80, floorTexture, floorTexture));
+		level.add(new Sector(firstStep, 10, 80, 80, Main.floorTexture, null));
+		level.add(new Sector(secondStep, 20, 80, 80, Main.floorTexture, null));
+		level.add(new Sector(thirdStep, 30, 80, 80, Main.floorTexture, null));
 
-		
+		level.add(new Sector(leftStart));
+		level.add(new Sector(middleStart));
+		level.add(new Sector(rightStart));
+		level.add(new Sector(leftRoom));
+		level.add(new Sector(middleRoom));
+		level.add(new Sector(rightRoom));
+		level.add(new Sector(rightTriangle));
+		level.add(new Sector(hallway, 0, 70, 80, null, topWallTexture, null, Main.CEIL_COLOR));
+
 		map = new Map(level);
 		bsp = new BSP(level);
 		bspT = new BSPTraversal(bsp.getRoot());
-		
-		player = Camera.getSelf();
-		
-		bspT.update();
-		map.updateBspSegment(bsp.getSegments(), bspT.getId());
+	}
 
-		Timer timer = new Timer(16, event -> update());
-		timer.start();
+	private static void loadTexture() {
+		if (DRAW_TEXTURE) {
+			try {
+				middleWallTexture = ImageIO.read(new File("./ressources/wall.png"));
+				topWallTexture = ImageIO.read(new File("./ressources/top.png"));
+				bottomWallTexture = ImageIO.read(new File("./ressources/bottom.png"));
+				ceilingTexture = ImageIO.read(new File("./ressources/ceiling.png"));
+				floorTexture = ImageIO.read(new File("./ressources/floor.png"));
+				skyTexture = ImageIO.read(new File("./ressources/background.png"));
+				levelFloorTexture = ImageIO.read(new File("./ressources/floorLevel.png"));
+				pistolTexture = ImageIO.read(new File("./ressources/pistol.png"));
+				pistolFiringTexture = ImageIO.read(new File("./ressources/pistolFiring.png"));
+			} catch (IOException e) {
+				System.out.println("Error loading texture");
+			}
+		}
 	}
 
 	private static void update() {
+		updatePlayer();
+		updateMap();
+	}
+
+	private static void updateMap() {
+		bspT.update();
+		map.updateBspSegment(bsp.getSegments(), bspT.getId());
+		map.repaint();
+	}
+
+	private static void updatePlayer() {
 		boolean moving = false;
 
 		if (pressedKeys.contains(KeyEvent.VK_UP) || pressedKeys.contains(KeyEvent.VK_Z)) {
@@ -308,20 +317,17 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		}
 
 		player.updateHeight(moving);
-		bspT.update();
-		map.updateBspSegment(bsp.getSegments(), bspT.getId());
-		map.repaint();
 	}
-	
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		pressedKeys.add(e.getKeyCode());
-    }
+	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -329,70 +335,71 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		pressedKeys.remove(e.getKeyCode());
 	}
 
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        mouseMoved(e);
-    }
-
 	public static void hideCursor(JFrame frame) {
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        Cursor invisibleCursor = toolkit.createCustomCursor(cursorImage, new java.awt.Point(0, 0), "InvisibleCursor");
-        frame.setCursor(invisibleCursor);
-    }
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Cursor invisibleCursor = toolkit.createCustomCursor(cursorImage, new java.awt.Point(0, 0), "InvisibleCursor");
+		frame.setCursor(invisibleCursor);
+	}
 
-    @Override
-    public void mouseMoved(MouseEvent e) {
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		mouseMoved(e);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
 		int deltaX = e.getX() - Main.CENTER_X;
-        int deltaY = e.getY() - Main.CENTER_Y;
+		int deltaY = e.getY() - Main.CENTER_Y;
 
-        if (deltaX != 0 || deltaY != 0) {
-            player.rotate(deltaX * 0.1); // Adjust sensitivity as needed
-            robot.mouseMove(Main.CENTER_X, Main.CENTER_Y);
-        }
-    }
+		if (deltaX != 0 || deltaY != 0) {
+			player.rotate(deltaX * 0.1); // Adjust sensitivity as needed
+			robot.mouseMove(Main.CENTER_X, Main.CENTER_Y);
+		}
+	}
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // Do nothing
-    }
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// Do nothing
+	}
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            triggerFiringAnimation();
-        }
-    }
+	@SuppressWarnings("unused")
+	@Override
+	public void mousePressed(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON1 && Main.DRAW_TEXTURE) {
+			triggerFiringAnimation();
+		}
+	}
 
 	public static void triggerFiringAnimation() {
-        pistolTexture = Main.pistolFiringTexture; // Switch to firing image
-        map.repaint(); // Repaint to show the new image
+		pistolTexture = Main.pistolFiringTexture; // Switch to firing image
+		map.repaint(); // Repaint to show the new image
 
-        // Set a timer to revert back to the original image after 200 milliseconds
-        Timer timer = new Timer(300, event -> {
-            try {
-                pistolTexture = ImageIO.read(new File("./ressources/pistol.png"));
-            } catch (IOException e) {
-                System.out.println("Error loading texture");
-            }
-            map.repaint(); // Repaint to show the original image
-        });
-        timer.setRepeats(false); // Only execute once
-        timer.start();
-    }
+		// Set a timer to revert back to the original image after 200 milliseconds
+		Timer timer = new Timer(300, event -> {
+			try {
+				pistolTexture = ImageIO.read(new File("./ressources/pistol.png"));
+			} catch (IOException e) {
+				System.out.println("Error loading texture");
+			}
+			map.repaint(); // Repaint to show the original image
+		});
+		timer.setRepeats(false); // Only execute once
+		timer.start();
+	}
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        // Do nothing
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
+	@Override
+	public void mouseReleased(MouseEvent e) {
 		// Do nothing
-    }
+	}
 
-    @Override
-    public void mouseExited(MouseEvent e) {
+	@Override
+	public void mouseEntered(MouseEvent e) {
 		// Do nothing
-    }
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Do nothing
+	}
 }

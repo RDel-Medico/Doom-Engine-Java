@@ -5,7 +5,7 @@ public class BSPNode {
 	private BSPNode back;
 	private int id;
 	private Segment split;
-	
+
 	public BSPNode getFront() {
 		return front;
 	}

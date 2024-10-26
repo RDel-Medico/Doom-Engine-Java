@@ -3,7 +3,6 @@ package bsp;
 import dataType.BSPNode;
 import dataType.Sector;
 import dataType.Segment;
-import java.awt.Color;
 import java.util.ArrayList;
 import utility.Utility;
 
@@ -11,18 +10,17 @@ public class BSP {
 	private BSPNode root;
 	private ArrayList<Segment> map;
 	private ArrayList<Segment> bspMap;
-	
-	
-	public BSP (ArrayList<Sector> m) {
+
+	public BSP(ArrayList<Sector> m) {
 		this.map = new ArrayList<>();
-		
+
 		for (Sector s : m) {
 			for (Segment se : s.getSegments()) {
 				se.setSector(s);
 				this.map.add(se);
 			}
 		}
-		
+
 		this.root = new BSPNode();
 		this.bspMap = new ArrayList<>();
 		this.buildBSP(this.root, this.map);
@@ -31,19 +29,19 @@ public class BSP {
 	private void buildBSP(BSPNode b, ArrayList<Segment> s) {
 		ArrayList<Segment> front = splitFrontSegments(s);
 		ArrayList<Segment> back = splitBackSegments(s);
-		
+
 		b.setId(this.bspMap.size());
 		this.bspMap.add(s.get(0));
-		
+
 		b.setSplit(s.get(0));
-		
+
 		if (!back.isEmpty()) {
 			b.setBack(new BSPNode());
 			buildBSP(b.getBack(), back);
 		} else {
 			b.setBack(null);
 		}
-		
+
 		if (!front.isEmpty()) {
 			b.setFront(new BSPNode());
 			buildBSP(b.getFront(), front);
@@ -51,85 +49,89 @@ public class BSP {
 			b.setFront(null);
 		}
 	}
-	
+
 	public ArrayList<Segment> splitFrontSegments(ArrayList<Segment> s) {
 		Segment splitter = s.get(0);
 		ArrayList<Segment> res = new ArrayList<>();
-		
+
 		for (int i = 1; i < s.size(); i++) {
 			if (Utility.isCollinear(splitter, s.get(i))) {
 				res.add(s.get(i));
 				continue;
 			}
-			
+
 			if (Utility.intersection(splitter, s.get(i))) {
 				Segment temp;
-				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA(), Color.RED, Color.RED, Color.RED, false), splitter) > 0) {
-					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
+				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA()), splitter) > 0) {
+					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(),
+							s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
 				} else {
-					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
+					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)),
+							s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
 				}
 				temp.setSector(s.get(i).getSector());
 				temp.setOriginalSegment(s.get(i).getRootSegment());
 				res.add(temp);
 				continue;
 			}
-			
+
 			if (Utility.collisionOnFront(splitter, s.get(i)))
 				res.add(s.get(i));
 		}
 		return res;
 	}
-	
+
 	public ArrayList<Segment> splitBackSegments(ArrayList<Segment> s) {
 		Segment splitter = s.get(0);
 		ArrayList<Segment> res = new ArrayList<>();
-		
+
 		for (int i = 1; i < s.size(); i++) {
 			if (Utility.intersection(splitter, s.get(i))) {
 				Segment temp;
-				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA(), Color.RED, Color.RED, Color.RED, false), splitter) > 0) {
-					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
+				if (Utility.crossProduct2D(new Segment(splitter.getA(), s.get(i).getA()), splitter) > 0) {
+					temp = new Segment(s.get(i).getA(), Utility.intersectionPoint(splitter, s.get(i)),
+							s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
 				} else {
-					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(), s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom(), s.get(i).isCollide());
+					temp = new Segment(Utility.intersectionPoint(splitter, s.get(i)), s.get(i).getB(),
+							s.get(i).getMiddle(), s.get(i).getTop(), s.get(i).getBottom());
 				}
 				temp.setSector(s.get(i).getSector());
 				temp.setOriginalSegment(s.get(i).getRootSegment());
 				res.add(temp);
 				continue;
 			}
-			
+
 			if (Utility.collisionOnBack(splitter, s.get(i)))
 				res.add(s.get(i));
 		}
 		return res;
 	}
-	
+
 	public BSPNode getRoot() {
 		return this.root;
 	}
-	
+
 	public ArrayList<Segment> getSegments() {
 		return this.bspMap;
 	}
 
-    public void setRoot(BSPNode root) {
-        this.root = root;
-    }
+	public void setRoot(BSPNode root) {
+		this.root = root;
+	}
 
-    public ArrayList<Segment> getMap() {
-        return map;
-    }
+	public ArrayList<Segment> getMap() {
+		return map;
+	}
 
-    public void setMap(ArrayList<Segment> map) {
-        this.map = map;
-    }
+	public void setMap(ArrayList<Segment> map) {
+		this.map = map;
+	}
 
-    public ArrayList<Segment> getBspMap() {
-        return bspMap;
-    }
+	public ArrayList<Segment> getBspMap() {
+		return bspMap;
+	}
 
-    public void setBspMap(ArrayList<Segment> bspMap) {
-        this.bspMap = bspMap;
-    }
+	public void setBspMap(ArrayList<Segment> bspMap) {
+		this.bspMap = bspMap;
+	}
 }
