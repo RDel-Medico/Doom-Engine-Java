@@ -89,90 +89,32 @@ public class Map extends JPanel{
 		Set<Sector> drawnSectors = new HashSet<>(); // Initialize the set
 
 		for (Segment curr : toDraw) {
-			this.drawWall3D(g, curr, drawnSectors);
+			drawWall3D(g, curr, drawnSectors);
 		}
 	}
 
-	private void drawCeilingAndFloor(Graphics g, Sector sector) {
+	private void drawCeilingAndFloor(Graphics g, Sector sector, double cameraHeight, double playerYaw, double playerFOV, Point playerPos, double halfFOV, Segment leftFOVBoundary, Segment rightFOVBoundary) {
 		ArrayList<Point> points = new ArrayList<>();
-		Point playerPos = Main.player.getPos();
-		double playerYaw = Main.player.getYaw();
-		double playerFOV = Main.FOV;
-		double halfFOV = playerFOV / 2.0;
-		double cameraHeight = Main.player.getHeight();
 
-		Point leftFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, -halfFOV);
-		Point rightFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, halfFOV);
-		Segment leftFOVBoundary = new Segment(playerPos, leftFOVEndPoint);
-		Segment rightFOVBoundary = new Segment(playerPos, rightFOVEndPoint);
-
-		for (Segment segment : sector.getSegments()) {
-			Point a;
-			Point b;
-
-			if (sector.isIsReversed()) {
-				a = segment.getB();
-				b = segment.getA();
-			} else {
-				a = segment.getA();
-				b = segment.getB();
-			}
-
-			double angleA = Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw;
-			double angleB = Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw;
-
-			angleA = Utility.normalizeAngle(angleA);
-			angleB = Utility.normalizeAngle(angleB);
-
-			boolean aInFOV = angleA >= -halfFOV && angleA <= halfFOV;
-			boolean bInFOV = angleB >= -halfFOV && angleB <= halfFOV;
-
-			if (aInFOV) {
-				points.add(a);
-			} else if (Utility.boundedIntersection(segment, leftFOVBoundary)) {
-				points.add(Utility.intersectionPoint(segment, leftFOVBoundary));
-			} else if (Utility.boundedIntersection(segment, rightFOVBoundary)) {
-				points.add(Utility.intersectionPoint(segment, rightFOVBoundary));
-			}
-
-			if (bInFOV) {
-				points.add(b);
-			} else if (Utility.boundedIntersection(segment, leftFOVBoundary)) {
-				points.add(Utility.intersectionPoint(segment, leftFOVBoundary));
-			} else if (Utility.boundedIntersection(segment, rightFOVBoundary)) {
-				points.add(Utility.intersectionPoint(segment, rightFOVBoundary));
-			}
-		}
+		for (Segment segment : sector.getSegments())
+			Utility.addFOVPoint(points, segment, halfFOV, leftFOVBoundary, rightFOVBoundary, playerPos, playerYaw);
 
 		// Project points to screen space
-		ArrayList<Integer> xPoints = new ArrayList<>();
-		ArrayList<Integer> yPointsFloor = new ArrayList<>();
-		ArrayList<Integer> yPointsCeiling = new ArrayList<>();
-
-		for (int i = 0; i < points.size(); i++) {
-			Point p = points.get(i);
-			double angle = Math.toDegrees(Math.atan2(p.getY() - playerPos.getY(), p.getX() - playerPos.getX())) - playerYaw;
-			angle = Utility.normalizeAngle(angle);
-
-			double distance = Utility.distance(playerPos, p);
-			int screenX = (int) ((angle + halfFOV) / playerFOV * Main.SCREEN_WIDTH);
-			int height = (int) (Main.SCREEN_HEIGHT / distance) * Main.HEIGHT_SCALE;
-
-			if (distance < 1) {
-				continue;
-			}
-
-			xPoints.add(screenX);
-			yPointsFloor.add(Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * (sector.getFloorHeight() - cameraHeight) / Main.HEIGHT_SCALE));
-			yPointsCeiling.add(Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * (sector.getCeilHeight() - cameraHeight) / Main.HEIGHT_SCALE));
-		}
-
 		ArrayList<Point> floorPoints = new ArrayList<>();
 		ArrayList<Point> ceilingPoints = new ArrayList<>();
 
-		for (int i = 0; i < xPoints.size(); i++) {
-			floorPoints.add(new Point(xPoints.get(i), yPointsFloor.get(i)));
-			ceilingPoints.add(new Point(xPoints.get(i), yPointsCeiling.get(i)));
+		for (int i = 0; i < points.size(); i++) {
+			Point p = points.get(i);
+			double distance = Utility.distance(playerPos, p);
+			double angle = Utility.normalizeAngle(Math.toDegrees(Math.atan2(p.getY() - playerPos.getY(), p.getX() - playerPos.getX())) - playerYaw);
+			int height = (int) (Main.SCREEN_HEIGHT / distance) * Main.HEIGHT_SCALE;
+
+			if (distance < 1) continue;
+
+			floorPoints.add(new Point(((angle + halfFOV) / playerFOV * Main.SCREEN_WIDTH),
+							Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * (sector.getFloorHeight() - cameraHeight) / Main.HEIGHT_SCALE)));
+			ceilingPoints.add(new Point(((angle + halfFOV) / playerFOV * Main.SCREEN_WIDTH),
+							Main.SCREEN_HEIGHT / 2 + height / 2 - (int) (Main.SCREEN_HEIGHT / distance * (sector.getCeilHeight() - cameraHeight) / Main.HEIGHT_SCALE)));
 		}
 
 		// Order the floor and ceiling points based on the angle from the center of the polygon
@@ -181,28 +123,11 @@ public class Map extends JPanel{
 		Point polygonCenterC = Utility.calculatePolygonCenter(ceilingPoints);
 		ceilingPoints.sort((p1, p2) -> Double.compare(Utility.angleFromCenter(polygonCenterC, p1), Utility.angleFromCenter(polygonCenterC, p2)));
 
-		ArrayList<Integer> xPointsF = new ArrayList<>();
-		ArrayList<Integer> xPointsC = new ArrayList<>();
-		yPointsFloor.clear();
-		yPointsCeiling.clear();
-
-		// Recreate the point arrays
-		for (int i = 0; i < floorPoints.size(); i++) {
-			xPointsF.add((int) floorPoints.get(i).getX());
-			yPointsFloor.add((int) floorPoints.get(i).getY());
-		}
-
-		for (int i = 0; i < ceilingPoints.size(); i++) {
-			xPointsC.add((int) ceilingPoints.get(i).getX());
-			yPointsCeiling.add((int) ceilingPoints.get(i).getY());
-		}
-
 		// Draw floor
-		drawFloor(g, sector, xPointsF, yPointsFloor);
+		drawFloor(g, sector, Utility.getXArray(floorPoints), Utility.getYArray(floorPoints));
 
 		// Draw ceiling
-		drawCeiling(g, sector, xPointsC, yPointsCeiling);
-		
+		drawCeiling(g, sector, Utility.getXArray(ceilingPoints), Utility.getYArray(ceilingPoints));
 	}
 
 	private void drawFloor(Graphics g, Sector sector, ArrayList<Integer> xPoints, ArrayList<Integer> yPointsFloor) {
@@ -234,38 +159,32 @@ public class Map extends JPanel{
 	}
 
 	private void drawWall3D(Graphics g, Segment s, Set<Sector> drawnSectors) {
-		Point playerPos = Main.player.getPos();	
+		Point playerPos = Main.player.getPos();
 		double playerYaw = Main.player.getYaw();
 		double playerFOV = Main.FOV;
-		double cameraHeight = Main.player.getHeight(); // Get the camera height
-
-		// Calculate the distance from the camera to the segment endpoints
-		Point a = s.getA();
-		Point b = s.getB();
-
-		double angleA = Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw;
-		double angleB = Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw;
-
-		angleA = Utility.normalizeAngle(angleA);
-		angleB = Utility.normalizeAngle(angleB);
+		double cameraHeight = Main.player.getHeight();
 
 		double halfFOV = playerFOV / 2.0;
 
-		// Calculate FOV boundaries
 		Point leftFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, -halfFOV);
 		Point rightFOVEndPoint = Utility.calculateFOVEndPoint(playerPos, playerYaw, halfFOV);
 		Segment leftFOVBoundary = new Segment(playerPos, leftFOVEndPoint);
 		Segment rightFOVBoundary = new Segment(playerPos, rightFOVEndPoint);
 
+		// Calculate the distance from the camera to the segment endpoints
+		Point a = s.getA();
+		Point b = s.getB();
+
+		double angleA = Utility.normalizeAngle(Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw);
+		double angleB = Utility.normalizeAngle(Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw);
+
 		// Check if point a is within the FOV
 		if (angleA < -halfFOV || angleA > halfFOV) {
 			if (Utility.boundedIntersection(s, leftFOVBoundary)) {
 				a = Utility.intersectionPoint(s, leftFOVBoundary);
-				if (angleB < -halfFOV || angleB > halfFOV) {
-					if (Utility.boundedIntersection(s, rightFOVBoundary)) {
+				if (angleB < -halfFOV || angleB > halfFOV)
+					if (Utility.boundedIntersection(s, rightFOVBoundary))
 						b = Utility.intersectionPoint(s, rightFOVBoundary);
-					}
-				}
 			}
 		}
 
@@ -273,14 +192,22 @@ public class Map extends JPanel{
 		if (angleB < -halfFOV || angleB > halfFOV) {
 			if (Utility.boundedIntersection(s, rightFOVBoundary)) {
 				b = Utility.intersectionPoint(s, rightFOVBoundary);
-				if (angleA < -halfFOV || angleA > halfFOV) {
-					if (Utility.boundedIntersection(s, leftFOVBoundary)) {
+				if (angleA < -halfFOV || angleA > halfFOV)
+					if (Utility.boundedIntersection(s, leftFOVBoundary))
 						a = Utility.intersectionPoint(s, leftFOVBoundary);
-					}
-				}
 			}
 		}
 
+		drawWallFromExtremities(g, s, playerPos, playerYaw, playerFOV, cameraHeight, halfFOV, a, b, angleA, angleB);
+
+		// Draw the floor and ceiling
+		if (!drawnSectors.contains(s.getSector())) {
+			drawCeilingAndFloor(g, s.getSector(), cameraHeight, playerYaw, playerFOV, playerPos, halfFOV, leftFOVBoundary, rightFOVBoundary);
+			drawnSectors.add(s.getSector());
+		}
+	}
+
+	private void drawWallFromExtremities(Graphics g, Segment s, Point playerPos, double playerYaw, double playerFOV, double cameraHeight, double halfFOV, Point a, Point b, double angleA, double angleB) {
 		double distanceA = Utility.distance(playerPos, a);
 		double distanceB = Utility.distance(playerPos, b);
 
@@ -330,12 +257,6 @@ public class Map extends JPanel{
 		// Draw the outline of the wall
 		drawOutline(g, WallPart.MIDDLE, s, screenXA, screenXB, ceilA, ceilB, floorA, floorB, ceilEndA, ceilEndB, bottomA, bottomB);
 		drawOutline(g, WallPart.TOP, s, screenXA, screenXB, ceilA, ceilB, floorA, floorB, ceilEndA, ceilEndB, bottomA, bottomB);
-
-		// Draw the floor and ceiling
-		if (!drawnSectors.contains(s.getSector())) {
-			drawCeilingAndFloor(g, s.getSector());
-			drawnSectors.add(s.getSector());
-		}
 	}
 
 	private void drawOutline(Graphics g, WallPart wallPart, Segment s, int screenXA, int screenXB, int ceilA, int ceilB, int floorA, int floorB, int ceilEndA, int ceilEndB, int bottomA, int bottomB) {

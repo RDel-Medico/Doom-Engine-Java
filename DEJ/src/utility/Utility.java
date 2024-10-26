@@ -274,6 +274,45 @@ public class Utility {
         return p.getX() < intersectionX;
     }
 
+    public static ArrayList<Integer> getXArray(ArrayList<Point> a) {
+		ArrayList<Integer> res = new ArrayList<>();
+		for (Point p : a)
+			res.add((int) p.getX());
+		return res;
+	}
+
+	public static ArrayList<Integer> getYArray(ArrayList<Point> a) {
+		ArrayList<Integer> res = new ArrayList<>();
+		for (Point p : a)
+			res.add((int) p.getY());
+		return res;
+	}
+
+    public static void addFOVPoint(ArrayList<Point> points, Segment segment, double halfFOV, Segment leftFOVBoundary, Segment rightFOVBoundary, Point playerPos, double playerYaw) {
+        Point a = segment.getA();
+        Point b = segment.getB();
+
+        // Calculate the angle of the segment endpoints relative to the player position
+        double angleA = Utility.normalizeAngle(Math.toDegrees(Math.atan2(a.getY() - playerPos.getY(), a.getX() - playerPos.getX())) - playerYaw);
+        double angleB = Utility.normalizeAngle(Math.toDegrees(Math.atan2(b.getY() - playerPos.getY(), b.getX() - playerPos.getX())) - playerYaw);
+
+		if (angleA >= -halfFOV && angleA <= halfFOV) {
+			points.add(a);
+		} else if (Utility.boundedIntersection(segment, leftFOVBoundary)) {
+			points.add(Utility.intersectionPoint(segment, leftFOVBoundary));
+		} else if (Utility.boundedIntersection(segment, rightFOVBoundary)) {
+			points.add(Utility.intersectionPoint(segment, rightFOVBoundary));
+		}
+
+		if (angleB >= -halfFOV && angleB <= halfFOV) {
+			points.add(b);
+		} else if (Utility.boundedIntersection(segment, leftFOVBoundary)) {
+			points.add(Utility.intersectionPoint(segment, leftFOVBoundary));
+		} else if (Utility.boundedIntersection(segment, rightFOVBoundary)) {
+			points.add(Utility.intersectionPoint(segment, rightFOVBoundary));
+		}
+	}
+
     public static int[] convertIntegers(ArrayList<Integer> integers) {
 		int[] ret = new int[integers.size()];
 		for (int i = 0; i < ret.length; i++) {
