@@ -17,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,8 +28,8 @@ import player.Camera;
 
 public class Main implements KeyListener, MouseMotionListener, MouseListener {
 	public static final boolean DRAW_TEXTURE = true;
-	public static final boolean DRAW_2D = true;
-	public static final boolean DRAW_3D = false;
+	public static final boolean DRAW_2D = false;
+	public static final boolean DRAW_3D = true;
 	public static final boolean DRAW_3D_FLOOR = false;
 	public static final boolean DRAW_3D_CEIL = false;
 
@@ -255,20 +254,20 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 
 	private static void loadTexture() {
 		if (DRAW_TEXTURE) {
-			try {
-				middleWallTexture = ImageIO.read(new File("./ressources/wall.png"));
-				topWallTexture = ImageIO.read(new File("./ressources/top.png"));
-				bottomWallTexture = ImageIO.read(new File("./ressources/bottom.png"));
-				ceilingTexture = ImageIO.read(new File("./ressources/ceiling.png"));
-				floorTexture = ImageIO.read(new File("./ressources/floor.png"));
-				skyTexture = ImageIO.read(new File("./ressources/background.png"));
-				levelFloorTexture = ImageIO.read(new File("./ressources/floorLevel.png"));
-				pistolTexture = ImageIO.read(new File("./ressources/pistol.png"));
-				pistolFiringTexture = ImageIO.read(new File("./ressources/pistolFiring.png"));
-			} catch (IOException e) {
-				System.out.println("Error loading texture");
-			}
-		}
+	        try {
+	            middleWallTexture = ImageIO.read(Main.class.getResource("/images/wall.png"));
+				topWallTexture = ImageIO.read(Main.class.getResource("/images/top.png"));
+				bottomWallTexture = ImageIO.read(Main.class.getResource("/images/bottom.png"));
+				ceilingTexture = ImageIO.read(Main.class.getResource("/images/ceiling.png"));
+				floorTexture = ImageIO.read(Main.class.getResource("/images/floor.png"));
+				skyTexture = ImageIO.read(Main.class.getResource("/images/background.png"));
+				levelFloorTexture = ImageIO.read(Main.class.getResource("/images/floorLevel.png"));
+				pistolTexture = ImageIO.read(Main.class.getResource("/images/pistol.png"));
+				pistolFiringTexture = ImageIO.read(Main.class.getResource("/images/pistolFiring.png"));
+	        } catch (IOException e) {
+	            System.out.println("Error loading texture");	
+	        }
+	    }
 	}
 
 	private static void update() {
@@ -378,7 +377,7 @@ public class Main implements KeyListener, MouseMotionListener, MouseListener {
 		// Set a timer to revert back to the original image after 200 milliseconds
 		Timer timer = new Timer(300, event -> {
 			try {
-				pistolTexture = ImageIO.read(new File("./ressources/pistol.png"));
+				pistolTexture = ImageIO.read(Main.class.getResource("/images/pistol.png"));
 			} catch (IOException e) {
 				System.out.println("Error loading texture");
 			}

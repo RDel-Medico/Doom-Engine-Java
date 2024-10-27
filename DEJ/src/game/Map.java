@@ -17,6 +17,7 @@ import main.Main;
 import player.Camera;
 import utility.Utility;
 
+@SuppressWarnings("serial")
 public class Map extends JPanel {
 	enum WallPart {
 		TOP, MIDDLE, BOTTOM
