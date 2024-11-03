@@ -2,7 +2,7 @@
 
 # Doom-Engine-Java (3D Game engine)
 
-A simple doom-like game engine. A presentation video is currently in construction.
+A simple doom-like game engine. Here is video of presentation: [https://youtu.be/rdSWH_XKPg8](https://youtu.be/rdSWH_XKPg8).
 
 ## Description
 
